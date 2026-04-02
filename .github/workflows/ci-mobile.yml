@@ -33,7 +33,7 @@ jobs:
           cache-dependency-path: comanda-plus/mobile/package-lock.json
 
       - name: 📦 Instalar dependências
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: 🔍 Verificar App.js (sintaxe)
         run: node --check App.js
