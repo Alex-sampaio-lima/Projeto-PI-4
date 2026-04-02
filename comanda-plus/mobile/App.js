@@ -11,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { enableScreens } from 'react-native-screens';
 
+import { registerRootComponent } from 'expo';
 import AppNavigator from './src/navigation/AppNavigator';
 import { CartProvider } from './src/context/CartContext';
 
@@ -18,10 +19,10 @@ import { CartProvider } from './src/context/CartContext';
 // Na web, o fallback do React Navigation (Views simples) funciona perfeitamente
 enableScreens(Platform.OS !== 'web');
 
-export default function App() {
+function App() {
   return (
-    // GestureHandlerRootView é necessário para o React Navigation Stack funcionar corretamente
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    // No ambiente Web, o flex: 1 no nível raiz precisa ser garantido
+    <GestureHandlerRootView style={{ flex: 1, minHeight: '100%' }}>
       <SafeAreaProvider>
         {/* CartProvider — disponibiliza o estado do carrinho para todo o app */}
         <CartProvider>
@@ -34,3 +35,9 @@ export default function App() {
     </GestureHandlerRootView>
   );
 }
+
+// Registra o componente raiz para que o Expo saiba o que carregar
+// Isso é obrigatório se o arquivo "main" no package.json for App.js
+registerRootComponent(App);
+
+export default App;

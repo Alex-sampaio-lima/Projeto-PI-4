@@ -2,14 +2,14 @@
 // Stack Navigator — telas de detalhe e checkout
 
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './TabNavigator';
 import DetalheProdutoScreen from '../screens/produtos/DetalheProdutoScreen';
 import CheckoutScreen from '../screens/carrinho/CheckoutScreen';
 import PedidoFinalizadoScreen from '../screens/pedido/PedidoFinalizadoScreen';
 import EnderecosScreen from '../screens/conta/EnderecosScreen';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 function StackNavigator() {
   return (

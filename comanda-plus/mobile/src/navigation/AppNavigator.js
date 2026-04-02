@@ -2,11 +2,11 @@
 // Navigator raiz — define entre tela de Login e o app principal
 
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from '../screens/auth/LoginScreen';
 import StackNavigator from './StackNavigator';
 
-const RootStack = createNativeStackNavigator();
+const RootStack = createStackNavigator();
 
 function AppNavigator() {
   return (
