@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Comanda+",
+    "slug": "comanda-plus",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1A3FA1"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.comandaplus.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1A3FA1"
+      },
+      "package": "com.comandaplus.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
