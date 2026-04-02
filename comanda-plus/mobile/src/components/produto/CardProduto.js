@@ -2,7 +2,7 @@
 // Card de produto exibido nas listagens
 
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import theme from '../../styles/theme';
 import { formatarMoeda, formatarAvaliacao } from '../../utils/format';
 
@@ -13,8 +13,9 @@ import { formatarMoeda, formatarAvaliacao } from '../../utils/format';
  *   produto {object}       — dados do produto (nome, preco, imagem, avaliacao)
  *   onPress {function}     — navega para o detalhe do produto
  *   onAdicionar {function} — adiciona ao carrinho diretamente
+ *   carregando {boolean}   — se true, mostra spinner no botão "+"
  */
-function CardProduto({ produto, onPress, onAdicionar }) {
+function CardProduto({ produto, onPress, onAdicionar, carregando = false }) {
   return (
     <TouchableOpacity style={estilos.container} onPress={onPress} activeOpacity={0.9}>
       {/* Imagem do produto */}
@@ -32,8 +33,17 @@ function CardProduto({ produto, onPress, onAdicionar }) {
       </View>
 
       {/* Botão de adicionar */}
-      <TouchableOpacity style={estilos.botaoAdicionar} onPress={onAdicionar} activeOpacity={0.8}>
-        <Text style={estilos.textoBotao}>+</Text>
+      <TouchableOpacity 
+        style={estilos.botaoAdicionar} 
+        onPress={onAdicionar} 
+        activeOpacity={0.8}
+        disabled={carregando}
+      >
+        {carregando ? (
+          <ActivityIndicator color={theme.cores.branco} size="small" />
+        ) : (
+          <Text style={estilos.textoBotao}>+</Text>
+        )}
       </TouchableOpacity>
     </TouchableOpacity>
   );

@@ -6,9 +6,11 @@ const path = require('path');
 require('dotenv').config();
 
 // Caminho do arquivo do banco de dados
-const dbPath = process.env.DB_PATH
-  ? path.resolve(process.cwd(), process.env.DB_PATH)
-  : path.resolve(__dirname, '../../database.sqlite');
+const dbPath = process.env.DB_PATH === ':memory:'
+  ? ':memory:'
+  : (process.env.DB_PATH
+    ? path.resolve(process.cwd(), process.env.DB_PATH)
+    : path.resolve(__dirname, '../../database.sqlite'));
 
 // Cria (ou abre) o banco de dados no caminho definido
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -16,9 +18,25 @@ const db = new sqlite3.Database(dbPath, (err) => {
     console.error('❌ Erro ao conectar ao banco de dados:', err.message);
   } else {
     console.log(`✅ Banco de dados conectado: ${dbPath}`);
-    // Ativa o modo WAL para melhor performace com múltiplas leituras
+// Ativa o modo WAL para melhor performace com múltiplas leituras
     db.run('PRAGMA journal_mode = WAL;');
   }
 });
 
+// Função para encerrar a conexão com o banco (útil para testes)
+const closeConnection = () => {
+  return new Promise((resolve, reject) => {
+    db.close((err) => {
+      if (err) {
+        console.error('❌ Erro ao fechar banco:', err.message);
+        reject(err);
+      } else {
+        console.log('✅ Conexão com banco encerrada.');
+        resolve();
+      }
+    });
+  });
+};
+
 module.exports = db;
+module.exports.closeConnection = closeConnection;

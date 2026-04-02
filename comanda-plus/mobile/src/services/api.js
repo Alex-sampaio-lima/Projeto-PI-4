@@ -2,6 +2,7 @@
 // Instância Axios configurada com a URL base da API
 
 import axios from 'axios';
+import { Alert } from 'react-native';
 
 // A URL é definida no arquivo .env como EXPO_PUBLIC_API_URL
 // Exemplo: http://192.168.1.10:3000/api
@@ -31,8 +32,16 @@ api.interceptors.response.use(
   (error) => {
     if (error.code === 'ECONNABORTED') {
       console.error('⏰ Timeout na requisição para a API');
+      Alert.alert(
+        'Conexão Lenta',
+        'O servidor demorou muito para responder. Verifique sua internet ou tente novamente mais tarde.'
+      );
     } else if (!error.response) {
       console.error('🔌 Sem conexão com o servidor. Verifique se o backend está rodando.');
+      Alert.alert(
+        'Sem Conexão',
+        'Não foi possível conectar ao servidor. Verifique sua internet e se o aplicativo está online.'
+      );
     }
     return Promise.reject(error);
   }

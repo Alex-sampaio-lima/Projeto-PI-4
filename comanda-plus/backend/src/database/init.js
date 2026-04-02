@@ -172,7 +172,7 @@ async function inicializarBanco() {
     await inserirDadosMock();
   } catch (err) {
     console.error('❌ Erro ao inicializar banco de dados:', err.message);
-    process.exit(1);
+    throw err;
   }
 }
 

@@ -26,8 +26,6 @@ const addressController = {
   async create(req, res, next) {
     try {
       const { rua, numero, bairro, cidade, estado, cep } = req.body;
-      if (!rua || !numero || !bairro || !cidade || !estado || !cep)
-        return res.status(400).json({ sucesso: false, mensagem: 'Campos obrigatórios: rua, numero, bairro, cidade, estado, cep' });
       const endereco = await addressModel.create(req.body);
       res.status(201).json({ sucesso: true, dados: endereco });
     } catch (error) {

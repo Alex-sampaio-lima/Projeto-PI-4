@@ -14,7 +14,7 @@ import theme from '../../styles/theme';
 
 function HomeScreen() {
   const navigation = useNavigation();
-  const { adicionarAoCarrinho } = useCart();
+  const { adicionarAoCarrinho, carregando: carregandoGlobal } = useCart();
   const [produtos, setProdutos] = useState([]);
   const [carregando, setCarregando] = useState(true);
 
@@ -39,9 +39,8 @@ function HomeScreen() {
   async function handleAdicionarAoCarrinho(produto) {
     try {
       await adicionarAoCarrinho(produto.id);
-      Alert.alert('✅ Adicionado!', `${produto.nome} foi adicionado ao carrinho.`);
-    } catch {
-      Alert.alert('Erro', 'Não foi possível adicionar ao carrinho.');
+    } catch (e) {
+      // O erro já é tratado no context
     }
   }
 
@@ -92,6 +91,7 @@ function HomeScreen() {
               produto={produto}
               onPress={() => navigation.navigate('DetalheProduto', { produto })}
               onAdicionar={() => handleAdicionarAoCarrinho(produto)}
+              carregando={carregandoGlobal}
             />
           ))
         )}

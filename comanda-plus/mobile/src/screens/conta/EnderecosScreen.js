@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, FlatList, StyleSheet,
-  TouchableOpacity, Alert, Modal, TextInput, ActivityIndicator,
+  TouchableOpacity, Alert, Modal, TextInput, ActivityIndicator, Platform, ScrollView
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Botao from '../../components/ui/Botao';
@@ -19,7 +19,7 @@ function EnderecosScreen() {
   const [salvando, setSalvando] = useState(false);
 
   // Campos do formulário
-  const [form, setForm] = useState({ rua: '', numero: '', bairro: '', cidade: '', estado: '', cep: '' });
+  const [form, setForm] = useState({ rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', cep: '' });
 
   useEffect(() => {
     carregarEnderecos();
@@ -40,7 +40,11 @@ function EnderecosScreen() {
   async function handleSalvar() {
     const { rua, numero, bairro, cidade, estado, cep } = form;
     if (!rua || !numero || !bairro || !cidade || !estado || !cep) {
-      Alert.alert('Atenção', 'Preencha todos os campos obrigatórios.');
+      if (Platform.OS === 'web') {
+        window.alert('Atenção: Preencha todos os campos obrigatórios.');
+      } else {
+        Alert.alert('Atenção', 'Preencha todos os campos obrigatórios.');
+      }
       return;
     }
 
@@ -48,35 +52,51 @@ function EnderecosScreen() {
     try {
       await enderecosService.criar(form);
       setModalVisivel(false);
-      setForm({ rua: '', numero: '', bairro: '', cidade: '', estado: '', cep: '' });
+      setForm({ rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', cep: '' });
       await carregarEnderecos();
-    } catch {
-      Alert.alert('Erro', 'Não foi possível salvar o endereço.');
+    } catch (error) {
+      console.error(error);
+      if (Platform.OS === 'web') window.alert(`Erro: Não foi possível salvar o endereço. ${error.message}`);
+      else Alert.alert('Erro', 'Não foi possível salvar o endereço.');
     } finally {
       setSalvando(false);
     }
   }
 
   async function handleRemover(id) {
-    Alert.alert(
-      'Remover Endereço',
-      'Tem certeza que deseja remover este endereço?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Remover',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await enderecosService.remover(id);
-              await carregarEnderecos();
-            } catch {
-              Alert.alert('Erro', 'Não foi possível remover o endereço.');
-            }
+    if (Platform.OS === 'web') {
+      const confirmou = window.confirm('Tem certeza que deseja remover este endereço?');
+      if (confirmou) {
+        try {
+          await enderecosService.remover(id);
+          await carregarEnderecos();
+        } catch (error) {
+          console.error(error);
+          window.alert(`Não foi possível remover. Motivo: ${error.message}`);
+        }
+      }
+    } else {
+      Alert.alert(
+        'Remover Endereço',
+        'Tem certeza que deseja remover este endereço?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Remover',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await enderecosService.remover(id);
+                await carregarEnderecos();
+              } catch (error) {
+                console.error(error);
+                Alert.alert('Erro', `Não foi possível remover. Motivo: ${error.message}`);
+              }
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   }
 
   return (
@@ -134,26 +154,28 @@ function EnderecosScreen() {
           <View style={estilos.modal}>
             <Text style={estilos.modalTitulo}>Novo Endereço</Text>
 
-            {[
-              ['Rua / Avenida', 'rua', 'Rua das Flores'],
-              ['Número', 'numero', '123'],
-              ['Complemento (opcional)', 'complemento', 'Apto 4B'],
-              ['Bairro', 'bairro', 'Centro'],
-              ['Cidade', 'cidade', 'São Paulo'],
-              ['Estado (UF)', 'estado', 'SP'],
-              ['CEP', 'cep', '01310-100'],
-            ].map(([label, campo, placeholder]) => (
-              <View key={campo}>
-                <Text style={estilos.labelModal}>{label}</Text>
-                <TextInput
-                  style={estilos.inputModal}
-                  placeholder={placeholder}
-                  placeholderTextColor={theme.cores.cinzaTexto}
-                  value={form[campo]}
-                  onChangeText={(val) => setForm({ ...form, [campo]: val })}
-                />
-              </View>
-            ))}
+            <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 10 }}>
+              {[
+                ['Rua / Avenida', 'rua', 'Rua das Flores'],
+                ['Número', 'numero', '123'],
+                ['Complemento (opcional)', 'complemento', 'Apto 4B'],
+                ['Bairro', 'bairro', 'Centro'],
+                ['Cidade', 'cidade', 'São Paulo'],
+                ['Estado (UF)', 'estado', 'SP'],
+                ['CEP', 'cep', '01310-100'],
+              ].map(([label, campo, placeholder]) => (
+                <View key={campo}>
+                  <Text style={estilos.labelModal}>{label}</Text>
+                  <TextInput
+                    style={estilos.inputModal}
+                    placeholder={placeholder}
+                    placeholderTextColor={theme.cores.cinzaTexto}
+                    value={form[campo]}
+                    onChangeText={(val) => setForm({ ...form, [campo]: val })}
+                  />
+                </View>
+              ))}
+            </ScrollView>
 
             <View style={estilos.modalBotoes}>
               <Botao titulo="Cancelar" variante="secundario" onPress={() => setModalVisivel(false)} estilo={estilos.botaoModal} />

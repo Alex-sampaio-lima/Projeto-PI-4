@@ -1,5 +1,11 @@
 # 🍽️ Comanda+
 
+![NodeJS](https://img.shields.io/badge/Node.js-6DA55F?style=flat-square&logo=node.js&logoColor=white)
+![React Native](https://img.shields.io/badge/React_Native-20232a?style=flat-square&logo=react&logoColor=61DAFB)
+![Expo](https://img.shields.io/badge/Expo-000020?style=flat-square&logo=expo&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=flat-square&logo=sqlite&logoColor=white)
+![Jest](https://img.shields.io/badge/Jest-C21325?style=flat-square&logo=jest&logoColor=white)
+
 > Aplicativo mobile de pedidos estilo iFood simplificado — desenvolvido para fins acadêmicos (Projeto Integrador).
 
 ---
@@ -185,7 +191,11 @@ DB_PATH=./database.sqlite
 Inicie o servidor:
 
 ```bash
-node server.js
+# Modo Produção
+npm start
+
+# Modo Desenvolvimento (com auto-reload)
+npm run dev
 ```
 
 ✅ Saída esperada no terminal:
@@ -199,6 +209,22 @@ node server.js
 ```
 
 > O banco SQLite é criado e populado automaticamente na primeira execução!
+
+---
+
+### 4. Testes (Backend)
+
+O projeto possui uma suíte de testes automatizados para garantir a integridade da API:
+
+```bash
+cd backend
+
+# Rodar todos os testes
+npm test
+
+# Rodar testes com relatório de cobertura
+npm run test:coverage
+```
 
 ---
 
@@ -229,13 +255,19 @@ Conteúdo do `mobile/.env`:
 EXPO_PUBLIC_API_URL=http://192.168.1.X:3000/api
 ```
 
-Inicie o Expo:
+Inicie o ambiente:
 
+#### Mobile (Android/iOS)
 ```bash
 npx expo start
 ```
-
 Escaneie o **QR Code** com o app **Expo Go** no celular.
+
+#### Web (Navegador)
+```bash
+npx expo start --web
+```
+O aplicativo será aberto no seu navegador padrão em `http://localhost:8081`.
 
 ---
 
@@ -340,6 +372,6 @@ git push origin feature/minha-feature
 
 ---
 
-## 👩‍💻 Equipe
+## 👥 Equipe
 
-Projeto desenvolvido para fins acadêmicos — **PI (Projeto Integrador)**.
+Projeto desenvolvido por um grupo de **4 alunos** para fins acadêmicos — **PI (Projeto Integrador)**.

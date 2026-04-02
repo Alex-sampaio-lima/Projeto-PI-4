@@ -1,6 +1,8 @@
 // src/routes/cartRoutes.js
 const express = require('express');
 const cartController = require('../controllers/cartController');
+const { cartAddValidator, cartUpdateValidator } = require('../validators');
+const { handleValidationErrors } = require('../middlewares/validationMiddleware');
 
 const router = express.Router();
 
@@ -8,10 +10,10 @@ const router = express.Router();
 router.get('/', cartController.getAll);
 
 // POST /cart — adiciona item ao carrinho
-router.post('/', cartController.addItem);
+router.post('/', cartAddValidator, handleValidationErrors, cartController.addItem);
 
 // PUT /cart/:id — atualiza quantidade
-router.put('/:id', cartController.updateItem);
+router.put('/:id', cartUpdateValidator, handleValidationErrors, cartController.updateItem);
 
 // DELETE /cart/clear — limpa o carrinho inteiro
 router.delete('/clear', cartController.clearCart);

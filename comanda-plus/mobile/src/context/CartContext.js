@@ -2,6 +2,7 @@
 // Context global do carrinho — compartilha estado entre todas as telas
 
 import React, { createContext, useState, useCallback } from 'react';
+import { Alert } from 'react-native';
 import { carrinhoService } from '../services/endpoints';
 
 // Cria o contexto
@@ -14,6 +15,8 @@ export function CartProvider({ children }) {
   const [itensCarrinho, setItensCarrinho] = useState([]);
   const [totalCarrinho, setTotalCarrinho] = useState(0);
   const [carregando, setCarregando] = useState(false);
+  // Lista de IDs de produtos que estão sendo adicionados no momento
+  const [adicionandoIds, setAdicionandoIds] = useState([]);
 
   // Busca o carrinho atual da API
   const buscarCarrinho = useCallback(async () => {
@@ -34,27 +37,38 @@ export function CartProvider({ children }) {
   // Adiciona produto ao carrinho
   const adicionarAoCarrinho = useCallback(async (productId, quantidade = 1) => {
     try {
+      // Usamos apenas o array de IDs para não congelar o app inteiro se houver vários cliques
+      setAdicionandoIds((prev) => [...prev, productId]);
       await carrinhoService.adicionar(productId, quantidade);
       await buscarCarrinho();
+      Alert.alert('✅ Adicionado ao Carrinho', 'O item foi adicionado com sucesso!');
     } catch (error) {
       console.error('Erro ao adicionar ao carrinho:', error.message);
+      Alert.alert('Erro', 'Não foi possível adicionar o item ao carrinho. Tente novamente.');
       throw error;
+    } finally {
+      setAdicionandoIds((prev) => prev.filter((id) => id !== productId));
     }
   }, [buscarCarrinho]);
 
   // Remove item do carrinho
   const removerDoCarrinho = useCallback(async (itemId) => {
     try {
+      setCarregando(true);
       await carrinhoService.removerItem(itemId);
       await buscarCarrinho();
     } catch (error) {
       console.error('Erro ao remover do carrinho:', error.message);
+      Alert.alert('Erro', 'Não foi possível remover o item do carrinho.');
+    } finally {
+      setCarregando(false);
     }
   }, [buscarCarrinho]);
 
   // Atualiza quantidade de um item
   const atualizarQuantidade = useCallback(async (itemId, quantidade) => {
     try {
+      setCarregando(true);
       if (quantidade <= 0) {
         await removerDoCarrinho(itemId);
         return;
@@ -63,17 +77,25 @@ export function CartProvider({ children }) {
       await buscarCarrinho();
     } catch (error) {
       console.error('Erro ao atualizar quantidade:', error.message);
+      Alert.alert('Erro', 'Não foi possível alterar a quantidade. Verifique sua conexão.');
+    } finally {
+      setCarregando(false);
     }
   }, [buscarCarrinho, removerDoCarrinho]);
 
   // Limpa o carrinho
   const limparCarrinho = useCallback(async () => {
     try {
+      setCarregando(true);
       await carrinhoService.limpar();
       setItensCarrinho([]);
       setTotalCarrinho(0);
+      Alert.alert('Tudo certo!', 'O carrinho foi esvaziado.');
     } catch (error) {
       console.error('Erro ao limpar carrinho:', error.message);
+      Alert.alert('Erro', 'Não foi possível limpar o carrinho. Tente novamente.');
+    } finally {
+      setCarregando(false);
     }
   }, []);
 
@@ -89,6 +111,7 @@ export function CartProvider({ children }) {
         itensCarrinho,
         totalCarrinho,
         carregando,
+        adicionandoIds,
         quantidadeTotalItens,
         buscarCarrinho,
         adicionarAoCarrinho,

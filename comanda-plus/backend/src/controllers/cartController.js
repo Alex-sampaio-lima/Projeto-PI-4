@@ -18,7 +18,6 @@ const cartController = {
   async addItem(req, res, next) {
     try {
       const { product_id, quantidade } = req.body;
-      if (!product_id) return res.status(400).json({ sucesso: false, mensagem: 'product_id é obrigatório' });
       const produto = await productModel.getById(product_id);
       if (!produto) return res.status(404).json({ sucesso: false, mensagem: 'Produto não encontrado' });
       const item = await cartModel.addItem(product_id, quantidade || 1);
@@ -31,7 +30,6 @@ const cartController = {
   async updateItem(req, res, next) {
     try {
       const { quantidade } = req.body;
-      if (!quantidade || quantidade < 1) return res.status(400).json({ sucesso: false, mensagem: 'Quantidade deve ser maior que 0' });
       const item = await cartModel.getById(req.params.id);
       if (!item) return res.status(404).json({ sucesso: false, mensagem: 'Item não encontrado no carrinho' });
       const atualizado = await cartModel.updateQuantidade(req.params.id, quantidade);

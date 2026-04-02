@@ -4,3 +4,4 @@
 const db = require('../database/db');
 
 module.exports = db;
+// Note: as funções exportadas por db.js já estão anexadas ao objeto db

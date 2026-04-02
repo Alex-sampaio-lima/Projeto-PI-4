@@ -26,7 +26,6 @@ const categoryController = {
   async create(req, res, next) {
     try {
       const { nome, icone } = req.body;
-      if (!nome) return res.status(400).json({ sucesso: false, mensagem: 'Nome é obrigatório' });
       const categoria = await categoryModel.create({ nome, icone });
       res.status(201).json({ sucesso: true, dados: categoria });
     } catch (error) {

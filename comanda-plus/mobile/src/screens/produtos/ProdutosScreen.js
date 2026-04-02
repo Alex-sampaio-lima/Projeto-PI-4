@@ -15,7 +15,7 @@ import theme from '../../styles/theme';
 
 function ProdutosScreen() {
   const navigation = useNavigation();
-  const { adicionarAoCarrinho } = useCart();
+  const { adicionarAoCarrinho, adicionandoIds } = useCart();
 
   const [produtos, setProdutos] = useState([]);
   const [categorias, setCategorias] = useState([]);
@@ -61,9 +61,8 @@ function ProdutosScreen() {
   async function handleAdicionar(produto) {
     try {
       await adicionarAoCarrinho(produto.id);
-      Alert.alert('✅', `${produto.nome} adicionado!`);
-    } catch {
-      Alert.alert('Erro', 'Não foi possível adicionar ao carrinho.');
+    } catch (e) {
+      // O erro já é alertado no context
     }
   }
 
@@ -125,6 +124,7 @@ function ProdutosScreen() {
               produto={item}
               onPress={() => navigation.navigate('DetalheProduto', { produto: item })}
               onAdicionar={() => handleAdicionar(item)}
+              carregando={adicionandoIds.includes(item.id)}
             />
           )}
           contentContainerStyle={estilos.lista}

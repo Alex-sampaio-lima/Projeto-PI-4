@@ -1,0 +1,100 @@
+name: 🚀 Pipeline Completa — CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ============================================================
+  # JOB 1: CI do Backend
+  # ============================================================
+  backend:
+    name: 🔧 Backend CI (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    defaults:
+      run:
+        working-directory: comanda-plus/backend
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: comanda-plus/backend/package-lock.json
+
+      - name: 📦 Instalar dependências
+        run: npm ci
+
+      - name: 🔍 Verificar sintaxe
+        run: node --check server.js && node --check src/app.js
+
+      - name: 🧪 Executar testes (Jest)
+        run: npm test
+        env:
+          NODE_ENV: test
+          DB_PATH: ':memory:'
+
+  # ============================================================
+  # JOB 2: CI do Mobile
+  # ============================================================
+  mobile:
+    name: 📱 Mobile CI (Expo)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: comanda-plus/mobile
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: comanda-plus/mobile/package-lock.json
+
+      - name: 📦 Instalar dependências
+        run: npm ci
+
+      - name: 🔍 Verificar App.js (sintaxe)
+        run: node --check App.js
+
+      - name: 🩺 Verificar saúde do projeto Expo
+        run: npx expo-doctor
+        continue-on-error: true
+
+  # ============================================================
+  # JOB 3: Status Check Final (depende de Backend + Mobile)
+  # ============================================================
+  status-check:
+    name: ✅ Todos os checks passaram
+    runs-on: ubuntu-latest
+    needs: [backend, mobile]
+    if: always()
+
+    steps:
+      - name: 🔎 Verificar resultado dos jobs anteriores
+        run: |
+          if [[ "${{ needs.backend.result }}" != "success" ]]; then
+            echo "❌ O CI do backend falhou."
+            exit 1
+          fi
+          if [[ "${{ needs.mobile.result }}" != "success" ]]; then
+            echo "❌ O CI do mobile falhou."
+            exit 1
+          fi
+          echo "✅ Todos os jobs passaram com sucesso!"

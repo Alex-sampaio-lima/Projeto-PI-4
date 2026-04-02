@@ -31,7 +31,6 @@ const productController = {
   async create(req, res, next) {
     try {
       const { nome, preco } = req.body;
-      if (!nome || preco === undefined) return res.status(400).json({ sucesso: false, mensagem: 'Nome e preço são obrigatórios' });
       const produto = await productModel.create(req.body);
       res.status(201).json({ sucesso: true, dados: produto });
     } catch (error) {

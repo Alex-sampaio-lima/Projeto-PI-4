@@ -55,8 +55,6 @@ const orderController = {
     try {
       const { status } = req.body;
       const statusValidos = ['pendente', 'confirmado', 'em_preparo', 'a_caminho', 'entregue', 'cancelado'];
-      if (!status || !statusValidos.includes(status))
-        return res.status(400).json({ sucesso: false, mensagem: `Status inválido. Use: ${statusValidos.join(', ')}` });
 
       const pedido = await orderModel.getById(req.params.id);
       if (!pedido) return res.status(404).json({ sucesso: false, mensagem: 'Pedido não encontrado' });

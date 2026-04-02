@@ -2,7 +2,7 @@
 // Tela "Minha Conta" — perfil e opções do usuário
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import theme from '../../styles/theme';
 
@@ -21,22 +21,40 @@ function ContaScreen() {
   const navigation = useNavigation();
 
   function handleSair() {
-    Alert.alert(
-      'Sair',
-      'Tem certeza que deseja sair da conta?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Sair',
-          style: 'destructive',
-          onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Login' }] }),
-        },
-      ]
-    );
+    if (Platform.OS === 'web') {
+      const confirmou = window.confirm('Tem certeza que deseja sair da conta?');
+      if (confirmou) {
+        const rootNav = navigation.getParent()?.getParent();
+        if (rootNav) rootNav.reset({ index: 0, routes: [{ name: 'Login' }] });
+        else navigation.navigate('Login');
+      }
+    } else {
+      Alert.alert(
+        'Sair',
+        'Tem certeza que deseja sair da conta?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Sair',
+            style: 'destructive',
+            // Acessamos o StackNavigator pai, depois o RootStack pai
+            onPress: () => {
+              const rootNav = navigation.getParent()?.getParent();
+              if (rootNav) {
+                rootNav.reset({ index: 0, routes: [{ name: 'Login' }] });
+              } else {
+                // Fallback
+                navigation.navigate('Login');
+              }
+            },
+          },
+        ]
+      );
+    }
   }
 
   return (
-    <View style={estilos.tela}>
+    <ScrollView style={estilos.tela} contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={estilos.header}>
         <Text style={estilos.headerTitulo}>Minha Conta</Text>
@@ -93,7 +111,7 @@ function ContaScreen() {
       <TouchableOpacity style={estilos.botaoSair} onPress={handleSair}>
         <Text style={estilos.textoBotaoSair}>Sair da Conta</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 

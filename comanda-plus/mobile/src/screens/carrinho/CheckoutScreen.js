@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, StyleSheet,
-  TouchableOpacity, Alert, ActivityIndicator,
+  TouchableOpacity, Alert, ActivityIndicator, Platform
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Botao from '../../components/ui/Botao';
@@ -52,11 +52,13 @@ function CheckoutScreen() {
 
   async function handleFinalizarPedido() {
     if (!enderecoSelecionado) {
-      Alert.alert('Atenção', 'Selecione um endereço de entrega.');
+      if (Platform.OS === 'web') window.alert('Atenção: Selecione um endereço de entrega.');
+      else Alert.alert('Atenção', 'Selecione um endereço de entrega.');
       return;
     }
     if (!pagamentoSelecionado) {
-      Alert.alert('Atenção', 'Selecione uma forma de pagamento.');
+      if (Platform.OS === 'web') window.alert('Atenção: Selecione uma forma de pagamento.');
+      else Alert.alert('Atenção', 'Selecione uma forma de pagamento.');
       return;
     }
 
@@ -73,7 +75,8 @@ function CheckoutScreen() {
       // Navega para a tela de sucesso
       navigation.navigate('PedidoFinalizado', { pedido: resposta.data.dados });
     } catch (error) {
-      Alert.alert('Erro', 'Não foi possível finalizar o pedido. Tente novamente.');
+      if (Platform.OS === 'web') window.alert('Erro: Não foi possível finalizar o pedido. Tente novamente.');
+      else Alert.alert('Erro', 'Não foi possível finalizar o pedido. Tente novamente.');
     } finally {
       setCarregando(false);
     }
@@ -90,68 +93,70 @@ function CheckoutScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={estilos.scroll}>
-        {/* Seção: Endereço */}
-        <Text style={estilos.secaoTitulo}>📍 Endereço de Entrega</Text>
-        {carregandoEnderecos ? (
-          <ActivityIndicator color={theme.cores.primaria} />
-        ) : enderecos.length === 0 ? (
-          <TouchableOpacity
-            style={estilos.adicionarEndereco}
-            onPress={() => navigation.navigate('Enderecos')}
-          >
-            <Text style={estilos.textoAdicionarEndereco}>+ Adicionar endereço</Text>
-          </TouchableOpacity>
-        ) : (
-          enderecos.map((endereco) => (
+      <View style={{ flex: 1 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={estilos.scroll}>
+          {/* Seção: Endereço */}
+          <Text style={estilos.secaoTitulo}>📍 Endereço de Entrega</Text>
+          {carregandoEnderecos ? (
+            <ActivityIndicator color={theme.cores.primaria} />
+          ) : enderecos.length === 0 ? (
             <TouchableOpacity
-              key={endereco.id}
-              style={[estilos.enderecoCard, enderecoSelecionado?.id === endereco.id && estilos.selecionado]}
-              onPress={() => setEnderecoSelecionado(endereco)}
+              style={estilos.adicionarEndereco}
+              onPress={() => navigation.navigate('Enderecos')}
+            >
+              <Text style={estilos.textoAdicionarEndereco}>+ Adicionar endereço</Text>
+            </TouchableOpacity>
+          ) : (
+            enderecos.map((endereco) => (
+              <TouchableOpacity
+                key={endereco.id}
+                style={[estilos.enderecoCard, enderecoSelecionado?.id === endereco.id && estilos.selecionado]}
+                onPress={() => setEnderecoSelecionado(endereco)}
+              >
+                <View style={estilos.radioOuter}>
+                  {enderecoSelecionado?.id === endereco.id && <View style={estilos.radioInner} />}
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={estilos.enderecoTexto}>{formatarEndereco(endereco)}</Text>
+                  {endereco.principal ? <Text style={estilos.principal}>Principal</Text> : null}
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
+
+          {/* Seção: Pagamento */}
+          <Text style={[estilos.secaoTitulo, { marginTop: theme.espacamento.lg }]}>💳 Forma de Pagamento</Text>
+          {FORMAS_PAGAMENTO.map((pag) => (
+            <TouchableOpacity
+              key={pag.id}
+              style={[estilos.pagamentoCard, pagamentoSelecionado?.id === pag.id && estilos.selecionado]}
+              onPress={() => setPagamentoSelecionado(pag)}
             >
               <View style={estilos.radioOuter}>
-                {enderecoSelecionado?.id === endereco.id && <View style={estilos.radioInner} />}
+                {pagamentoSelecionado?.id === pag.id && <View style={estilos.radioInner} />}
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={estilos.enderecoTexto}>{formatarEndereco(endereco)}</Text>
-                {endereco.principal ? <Text style={estilos.principal}>Principal</Text> : null}
-              </View>
+              <Text style={estilos.pagamentoIcone}>{pag.icone}</Text>
+              <Text style={estilos.pagamentoNome}>{pag.nome}</Text>
             </TouchableOpacity>
-          ))
-        )}
-
-        {/* Seção: Pagamento */}
-        <Text style={[estilos.secaoTitulo, { marginTop: theme.espacamento.lg }]}>💳 Forma de Pagamento</Text>
-        {FORMAS_PAGAMENTO.map((pag) => (
-          <TouchableOpacity
-            key={pag.id}
-            style={[estilos.pagamentoCard, pagamentoSelecionado?.id === pag.id && estilos.selecionado]}
-            onPress={() => setPagamentoSelecionado(pag)}
-          >
-            <View style={estilos.radioOuter}>
-              {pagamentoSelecionado?.id === pag.id && <View style={estilos.radioInner} />}
-            </View>
-            <Text style={estilos.pagamentoIcone}>{pag.icone}</Text>
-            <Text style={estilos.pagamentoNome}>{pag.nome}</Text>
-          </TouchableOpacity>
-        ))}
-
-        {/* Seção: Resumo */}
-        <Text style={[estilos.secaoTitulo, { marginTop: theme.espacamento.lg }]}>🧾 Resumo do Pedido</Text>
-        <View style={estilos.resumoCard}>
-          {itensCarrinho.map((item) => (
-            <View key={item.id} style={estilos.resumoItem}>
-              <Text style={estilos.resumoNome}>{item.quantidade}x {item.nome}</Text>
-              <Text style={estilos.resumoPreco}>{formatarMoeda(item.preco * item.quantidade)}</Text>
-            </View>
           ))}
-          <View style={estilos.divisor} />
-          <View style={estilos.resumoItem}>
-            <Text style={estilos.resumoTotal}>Total</Text>
-            <Text style={estilos.resumoTotalValor}>{formatarMoeda(totalCarrinho)}</Text>
+
+          {/* Seção: Resumo */}
+          <Text style={[estilos.secaoTitulo, { marginTop: theme.espacamento.lg }]}>🧾 Resumo do Pedido</Text>
+          <View style={estilos.resumoCard}>
+            {itensCarrinho.map((item) => (
+              <View key={item.id} style={estilos.resumoItem}>
+                <Text style={estilos.resumoNome}>{item.quantidade}x {item.nome}</Text>
+                <Text style={estilos.resumoPreco}>{formatarMoeda(item.preco * item.quantidade)}</Text>
+              </View>
+            ))}
+            <View style={estilos.divisor} />
+            <View style={estilos.resumoItem}>
+              <Text style={estilos.resumoTotal}>Total</Text>
+              <Text style={estilos.resumoTotalValor}>{formatarMoeda(totalCarrinho)}</Text>
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
 
       {/* Botão finalizar */}
       <View style={estilos.footer}>

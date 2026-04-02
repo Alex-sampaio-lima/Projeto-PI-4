@@ -1,6 +1,8 @@
 // src/routes/productRoutes.js
 const express = require('express');
 const productController = require('../controllers/productController');
+const { productValidator } = require('../validators');
+const { handleValidationErrors } = require('../middlewares/validationMiddleware');
 
 const router = express.Router();
 
@@ -11,10 +13,10 @@ router.get('/', productController.getAll);
 router.get('/:id', productController.getById);
 
 // POST /products
-router.post('/', productController.create);
+router.post('/', productValidator, handleValidationErrors, productController.create);
 
 // PUT /products/:id
-router.put('/:id', productController.update);
+router.put('/:id', productValidator, handleValidationErrors, productController.update);
 
 // DELETE /products/:id
 router.delete('/:id', productController.delete);

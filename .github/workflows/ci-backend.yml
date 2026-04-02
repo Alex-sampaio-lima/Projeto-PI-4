@@ -1,0 +1,49 @@
+name: 🔧 CI — Backend
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'comanda-plus/backend/**'
+      - '.github/workflows/ci-backend.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'comanda-plus/backend/**'
+      - '.github/workflows/ci-backend.yml'
+
+defaults:
+  run:
+    working-directory: comanda-plus/backend
+
+jobs:
+  ci-backend:
+    name: 🧪 Testes & Verificação (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: 📥 Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: comanda-plus/backend/package-lock.json
+
+      - name: 📦 Instalar dependências
+        run: npm ci
+
+      - name: 🔍 Verificar sintaxe dos arquivos JS
+        run: node --check server.js && node --check src/app.js
+
+      - name: 🧪 Executar testes (Jest)
+        run: npm test
+        env:
+          NODE_ENV: test
+          DB_PATH: ':memory:'
