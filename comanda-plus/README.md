@@ -29,8 +29,8 @@ O **Comanda+** é uma aplicação full stack de pedidos com:
 ### Frontend (mobile/)
 | Tecnologia | Versão |
 |---|---|
-| React Native | 0.74.x |
-| Expo | ~51.0 |
+| React Native | 0.81.x |
+| Expo | ~54.0 |
 | React Navigation (Stack + Tabs) | ^6.x |
 | Axios | ^1.6.x |
 
@@ -237,35 +237,19 @@ cd mobile
 npm install
 ```
 
-Configure o `.env` do mobile:
-
-```bash
-# Windows
-copy .env.example .env
-
-# Linux / Mac
-cp .env.example .env
-```
-
-> ⚠️ **IMPORTANTE:** No arquivo `mobile/.env`, substitua `SEU_IP` pelo IP local da sua máquina.  
-> Para descobrir o IP: `ipconfig` (Windows) ou `ifconfig` (Mac/Linux)
-
-Conteúdo do `mobile/.env`:
-```env
-EXPO_PUBLIC_API_URL=http://192.168.1.X:3000/api
-```
+O projeto mobile possui um script de automação (`npm run dev`) que detecta o IP local da sua máquina automaticamente, gera o arquivo `.env` necessário para conectar à API e inicia o Expo. **Não é preciso configurar o IP e criar o `.env` manualmente!**
 
 Inicie o ambiente:
 
 #### Mobile (Android/iOS)
 ```bash
-npx expo start
+npm run dev
 ```
-Escaneie o **QR Code** com o app **Expo Go** no celular.
+Escaneie o **QR Code** com o app **Expo Go** no celular (certifique-se de que o celular e o computador estão na mesma rede Wi-Fi).
 
 #### Web (Navegador)
 ```bash
-npx expo start --web
+npm run web
 ```
 O aplicativo será aberto no seu navegador padrão em `http://localhost:8081`.
 
@@ -374,4 +358,4 @@ git push origin feature/minha-feature
 
 ## 👥 Equipe
 
-Projeto desenvolvido por um grupo de **4 alunos** para fins acadêmicos — **PI (Projeto Integrador)**.
+Projeto desenvolvido para fins acadêmicos — **PI (Projeto Integrador)**.
