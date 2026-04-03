@@ -5,7 +5,7 @@
   "main": "App.js",
   "scripts": {
     "start": "expo start",
-    "dev": "set REACT_NATIVE_PACKAGER_HOSTNAME=192.168.15.155 && expo start --lan",
+    "dev": "node scripts/generate-env.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
