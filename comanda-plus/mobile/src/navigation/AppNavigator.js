@@ -4,6 +4,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from '../screens/auth/LoginScreen';
+import CadastroScreen from '../screens/auth/CadastroScreen';
 import StackNavigator from './StackNavigator';
 
 const RootStack = createStackNavigator();
@@ -14,8 +15,9 @@ function AppNavigator() {
       initialRouteName="Login"
       screenOptions={{ headerShown: false }}
     >
-      {/* Tela de autenticação */}
+      {/* Telas de autenticação */}
       <RootStack.Screen name="Login" component={LoginScreen} />
+      <RootStack.Screen name="Cadastro" component={CadastroScreen} />
 
       {/* App principal (após login) */}
       <RootStack.Screen name="Main" component={StackNavigator} />
