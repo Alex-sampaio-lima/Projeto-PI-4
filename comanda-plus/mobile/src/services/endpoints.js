@@ -75,3 +75,16 @@ export const enderecosService = {
   atualizar: (id, dados) => api.put(`/addresses/${id}`, dados),
   remover: (id) => api.delete(`/addresses/${id}`),
 };
+
+// ===== Autenticação ===== //
+export const authService = {
+  // Cadastra novo usuário
+  cadastrar: (dados) => api.post('/auth/register', dados),
+
+  // Faz login
+  login: (dados) => api.post('/auth/login', dados),
+
+  // Redefine a senha
+  redefinirSenha: (dados) => api.post('/auth/reset-password', dados),
+};
+

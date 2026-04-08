@@ -4,11 +4,12 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet,
-  Image, KeyboardAvoidingView, Platform, ScrollView, Alert,
+  Image, KeyboardAvoidingView, Platform, ScrollView, Alert, TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Botao from '../../components/ui/Botao';
 import theme from '../../styles/theme';
+import { authService } from '../../services/endpoints';
 
 function LoginScreen() {
   const navigation = useNavigation();
@@ -23,13 +24,17 @@ function LoginScreen() {
       return;
     }
 
-    setCarregando(true);
-    // Simula uma chamada de API com delay
-    setTimeout(() => {
-      setCarregando(false);
-      // Navega para o app principal após "login"
+    try {
+      setCarregando(true);
+      await authService.login({ email, senha });
       navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
-    }, 1000);
+    } catch (error) {
+      const mensagem =
+        error?.response?.data?.mensagem || 'Não foi possível fazer login. Verifique suas credenciais.';
+      Alert.alert('Erro no login', mensagem);
+    } finally {
+      setCarregando(false);
+    }
   }
 
   return (
@@ -69,6 +74,13 @@ function LoginScreen() {
             onChangeText={setSenha}
             secureTextEntry
           />
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('RecuperarSenha')}
+            style={estilos.linkEsqueciSenha}
+          >
+            <Text style={estilos.textoEsqueciSenha}>Esqueci minha senha</Text>
+          </TouchableOpacity>
 
           <Botao
             titulo="Log In"
@@ -147,6 +159,15 @@ const estilos = StyleSheet.create({
     fontSize: theme.fonte.tamanho.md,
     color: theme.cores.textoEscuro,
     marginBottom: theme.espacamento.md,
+  },
+  linkEsqueciSenha: {
+    alignSelf: 'flex-end',
+    marginBottom: theme.espacamento.lg,
+  },
+  textoEsqueciSenha: {
+    fontSize: theme.fonte.tamanho.sm,
+    color: theme.cores.primaria,
+    fontWeight: theme.fonte.peso.semibold,
   },
   botao: {
     marginTop: theme.espacamento.sm,

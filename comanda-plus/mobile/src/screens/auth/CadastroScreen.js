@@ -1,6 +1,3 @@
-// src/screens/auth/CadastroScreen.js
-// Tela de cadastro de novo usuário
-
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet,
@@ -9,6 +6,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import Botao from '../../components/ui/Botao';
 import theme from '../../styles/theme';
+import { authService } from '../../services/endpoints';
 
 function CadastroScreen() {
   const navigation = useNavigation();
@@ -34,17 +32,19 @@ function CadastroScreen() {
       return;
     }
 
-    setCarregando(true);
-    // Simula chamada à API
-    setTimeout(() => {
-      setCarregando(false);
-      Alert.alert('Sucesso!', 'Sua conta foi criada com sucesso.', [
-        {
-          text: 'Fazer login',
-          onPress: () => navigation.goBack(),
-        },
+    try {
+      setCarregando(true);
+      await authService.cadastrar({ nome, email, senha });
+      Alert.alert('Sucesso! 🎉', 'Sua conta foi criada. Faça login para continuar.', [
+        { text: 'Fazer login', onPress: () => navigation.goBack() },
       ]);
-    }, 1200);
+    } catch (error) {
+      const mensagem =
+        error?.response?.data?.mensagem || 'Não foi possível criar a conta. Tente novamente.';
+      Alert.alert('Erro no cadastro', mensagem);
+    } finally {
+      setCarregando(false);
+    }
   }
 
   return (

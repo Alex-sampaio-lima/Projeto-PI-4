@@ -2,6 +2,7 @@
 // Cria as tabelas do banco SQLite e insere dados mock iniciais
 
 const db = require('./db');
+const userModel = require('../models/userModel');
 
 /**
  * Executa uma query SQL que não retorna dados (CREATE, INSERT, etc.)
@@ -105,6 +106,9 @@ async function criarTabelas() {
     )
   `);
 
+  // Tabela de usuários
+  await userModel.criarTabela();
+
   console.log('✅ Tabelas criadas com sucesso!');
 }
 
@@ -164,12 +168,31 @@ async function inserirDadosMock() {
 }
 
 /**
+ * Garante que existe pelo menos um usuário de teste no banco
+ */
+async function inserirUsuarioTeste() {
+  const existente = await get("SELECT id FROM users WHERE email = 'teste@comanda.com'");
+  if (existente) return;
+
+  await userModel.create({
+    nome: 'Usuário Teste',
+    email: 'teste@comanda.com',
+    senha: 'senha123',
+  });
+
+  console.log('👤 Usuário de teste criado:');
+  console.log('   E-mail : teste@comanda.com');
+  console.log('   Senha  : senha123');
+}
+
+/**
  * Função principal — inicializa banco, tabelas e dados mock
  */
 async function inicializarBanco() {
   try {
     await criarTabelas();
     await inserirDadosMock();
+    await inserirUsuarioTeste();
   } catch (err) {
     console.error('❌ Erro ao inicializar banco de dados:', err.message);
     throw err;

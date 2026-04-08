@@ -17,10 +17,12 @@ const api = axios.create({
   },
 });
 
+console.log('📡 API_URL configurada:', API_URL);
+
 // Interceptor de requisição — útil para adicionar logs ou tokens futuros
 api.interceptors.request.use(
   (config) => {
-    // console.log(`📡 Requisição: ${config.method?.toUpperCase()} ${config.url}`);
+    console.log(`📡 Requisição: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
     return config;
   },
   (error) => Promise.reject(error)
@@ -30,17 +32,19 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error('🔴 Erro na API:', error?.code, error?.message);
+    console.error('🔴 URL tentada:', error?.config?.baseURL + error?.config?.url);
+    console.error('🔴 Resposta:', JSON.stringify(error?.response?.data));
+
     if (error.code === 'ECONNABORTED') {
-      console.error('⏰ Timeout na requisição para a API');
       Alert.alert(
         'Conexão Lenta',
-        'O servidor demorou muito para responder. Verifique sua internet ou tente novamente mais tarde.'
+        'O servidor demorou muito para responder.'
       );
     } else if (!error.response) {
-      console.error('🔌 Sem conexão com o servidor. Verifique se o backend está rodando.');
       Alert.alert(
         'Sem Conexão',
-        'Não foi possível conectar ao servidor. Verifique sua internet e se o aplicativo está online.'
+        `Não foi possível conectar ao servidor.\nURL: ${error?.config?.baseURL}\n\nVerifique se o backend está rodando e se o IP no .env está correto.`
       );
     }
     return Promise.reject(error);

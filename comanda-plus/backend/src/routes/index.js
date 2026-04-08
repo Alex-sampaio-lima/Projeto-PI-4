@@ -7,6 +7,7 @@ const categoryRoutes = require('./categoryRoutes');
 const cartRoutes = require('./cartRoutes');
 const orderRoutes = require('./orderRoutes');
 const addressRoutes = require('./addressRoutes');
+const authRoutes = require('./authRoutes');
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.get('/', (req, res) => {
 });
 
 // Registra todas as rotas
+router.use('/auth', authRoutes);
 router.use('/products', productRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/cart', cartRoutes);
