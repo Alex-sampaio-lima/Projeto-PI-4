@@ -33,7 +33,7 @@ function DetalheProdutoScreen() {
   async function handleAdicionarAoCarrinho() {
     setCarregando(true);
     try {
-      await adicionarAoCarrinho(produto.id, quantidade);
+      await adicionarAoCarrinho(produto, quantidade);
       Alert.alert(
         '✅ Adicionado!',
         `${quantidade}x ${produto.nome} foi adicionado ao carrinho.`,

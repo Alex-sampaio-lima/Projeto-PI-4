@@ -9,6 +9,8 @@ const productController = {
       let produtos;
       if (req.query.category_id) {
         produtos = await productModel.getByCategory(req.query.category_id);
+      } else if (req.query.company_id) {
+        produtos = await productModel.getByCompany(req.query.company_id);
       } else {
         produtos = await productModel.getAll();
       }

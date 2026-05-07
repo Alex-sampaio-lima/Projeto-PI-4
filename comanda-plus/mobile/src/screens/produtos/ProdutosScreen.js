@@ -50,7 +50,8 @@ function ProdutosScreen() {
 
   async function carregarProdutos(categoriaId) {
     try {
-      const resposta = await produtosService.listar(categoriaId);
+      const filtros = categoriaId ? { category_id: categoriaId } : {};
+      const resposta = await produtosService.listar(filtros);
       const dados = resposta.data?.dados || resposta.data || [];
       setProdutos(Array.isArray(dados) ? dados : []);
     } catch (error) {
@@ -60,7 +61,7 @@ function ProdutosScreen() {
 
   async function handleAdicionar(produto) {
     try {
-      await adicionarAoCarrinho(produto.id);
+      await adicionarAoCarrinho(produto);
     } catch (e) {
       // O erro já é alertado no context
     }

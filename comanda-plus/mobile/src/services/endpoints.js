@@ -5,10 +5,9 @@ import api from './api';
 
 // ===== Produtos ===== //
 export const produtosService = {
-  // Busca todos os produtos (opcional: filtrar por categoria)
-  listar: (categoryId) => {
-    const params = categoryId ? { category_id: categoryId } : {};
-    return api.get('/products', { params });
+  // Busca todos os produtos com filtros opcionais
+  listar: (filtros = {}) => {
+    return api.get('/products', { params: filtros });
   },
 
   // Busca um produto pelo ID
@@ -31,6 +30,18 @@ export const categoriasService = {
   criar: (dados) => api.post('/categories', dados),
   atualizar: (id, dados) => api.put(`/categories/${id}`, dados),
   remover: (id) => api.delete(`/categories/${id}`),
+};
+
+// ===== Empresas ===== //
+export const empresasService = {
+  // Busca todas as empresas (opcional: filtrar por categoria)
+  listar: (categoria) => {
+    const params = categoria ? { categoria } : {};
+    return api.get('/companies', { params });
+  },
+
+  // Busca uma empresa e seus produtos
+  buscarPorId: (id) => api.get(`/companies/${id}`),
 };
 
 // ===== Carrinho ===== //

@@ -43,6 +43,20 @@ async function criarTabelas() {
   `);
 
   await run(`
+    CREATE TABLE IF NOT EXISTS companies (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT NOT NULL,
+      logo TEXT,
+      banner TEXT,
+      tempo_entrega TEXT,
+      frete REAL DEFAULT 0,
+      avaliacao REAL DEFAULT 0,
+      categoria TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await run(`
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nome TEXT NOT NULL,
@@ -51,9 +65,11 @@ async function criarTabelas() {
       imagem TEXT,
       avaliacao REAL DEFAULT 0,
       category_id INTEGER,
+      company_id INTEGER,
       disponivel INTEGER DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (category_id) REFERENCES categories(id)
+      FOREIGN KEY (category_id) REFERENCES categories(id),
+      FOREIGN KEY (company_id) REFERENCES companies(id)
     )
   `);
 
@@ -88,9 +104,11 @@ async function criarTabelas() {
       total REAL NOT NULL,
       status TEXT DEFAULT 'pendente',
       address_id INTEGER,
+      company_id INTEGER,
       observacao TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (address_id) REFERENCES addresses(id)
+      FOREIGN KEY (address_id) REFERENCES addresses(id),
+      FOREIGN KEY (company_id) REFERENCES companies(id)
     )
   `);
 
@@ -105,6 +123,14 @@ async function criarTabelas() {
       FOREIGN KEY (product_id) REFERENCES products(id)
     )
   `);
+
+  // Adiciona colunas se não existirem (para migração simples em dev)
+  try {
+    await run('ALTER TABLE products ADD COLUMN company_id INTEGER REFERENCES companies(id)');
+  } catch (e) {}
+  try {
+    await run('ALTER TABLE orders ADD COLUMN company_id INTEGER REFERENCES companies(id)');
+  } catch (e) {}
 
   // Tabela de usuários
   await userModel.criarTabela();
@@ -137,23 +163,31 @@ async function inserirDadosMock() {
     catIds.push(r.lastID);
   }
 
+  // Empresas
+  const empresas = [
+    ['Burger King', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Burger_King_2020.svg/1024px-Burger_King_2020.svg.png', 'https://burgerking.com.br/banner.jpg', '20-30 min', 5.90, 4.5, 'Hambúrguer'],
+    ['Dominos Pizza', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Domino%27s_pizza_logo.svg/1200px-Domino%27s_pizza_logo.svg.png', 'https://dominos.com.br/banner.jpg', '35-45 min', 0.00, 4.7, 'Pizza'],
+    ['Saúde no Copo', 'https://saudenocopo.com.br/logo.png', 'https://saudenocopo.com.br/banner.jpg', '15-25 min', 7.50, 4.8, 'Saudável'],
+  ];
+
+  const empIds = [];
+  for (const emp of empresas) {
+    const r = await run('INSERT INTO companies (nome, logo, banner, tempo_entrega, frete, avaliacao, categoria) VALUES (?, ?, ?, ?, ?, ?, ?)', emp);
+    empIds.push(r.lastID);
+  }
+
   // Produtos
   const produtos = [
-    ['Combo Burguer Bacon', 'Hambúrguer artesanal com bacon crocante, queijo cheddar, alface, tomate e molho especial.', 29.90, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', 4.8, catIds[0]],
-    ['Big Beef Flavor', 'Dois hambúrgueres de carne angus, queijo americano, picles e molho especial.', 34.90, 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400', 4.6, catIds[0]],
-    ['Chicken Crispy', 'Frango empanado crocante, maionese de alho, alface americana e tomate cereja.', 24.90, 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400', 4.5, catIds[0]],
-    ['Pizza Margherita', 'Molho de tomate, muçarela fresca, manjericão e azeite. Clássica e irresistível.', 42.90, 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', 4.7, catIds[1]],
-    ['Pizza Pepperoni', 'Molho de tomate, muçarela e pedaços generosos de pepperoni defumado.', 47.90, 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400', 4.9, catIds[1]],
-    ['Coca-Cola 600ml', 'Refrigerante gelado, a combinação perfeita com seu pedido.', 8.90, 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400', 4.4, catIds[2]],
-    ['Suco de Laranja', 'Suco natural de laranja, sem adição de açúcar, 500ml.', 11.90, 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400', 4.6, catIds[2]],
-    ['Torta de Chocolate', 'Fatia generosa de torta de chocolate com ganache e chantilly.', 16.90, 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400', 4.8, catIds[3]],
-    ['Bowl Frango Grelhado', 'Bowl saudável com frango grelhado, arroz integral, brócolis e molho tahine.', 31.90, 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400', 4.7, catIds[4]],
-    ['Salada Caesar', 'Alface romana, croutons, parmesão e molho caesar tradicional.', 22.90, 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=400', 4.5, catIds[4]],
+    ['Combo Burguer Bacon', 'Hambúrguer artesanal com bacon crocante, queijo cheddar.', 29.90, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', 4.8, catIds[0], empIds[0]],
+    ['Big Beef Flavor', 'Dois hambúrgueres de carne angus.', 34.90, 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400', 4.6, catIds[0], empIds[0]],
+    ['Pizza Margherita', 'Clássica e irresistível.', 42.90, 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', 4.7, catIds[1], empIds[1]],
+    ['Pizza Pepperoni', 'Pepperoni defumado.', 47.90, 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400', 4.9, catIds[1], empIds[1]],
+    ['Bowl Frango Grelhado', 'Bowl saudável.', 31.90, 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400', 4.7, catIds[4], empIds[2]],
   ];
 
   for (const produto of produtos) {
     await run(
-      'INSERT INTO products (nome, descricao, preco, imagem, avaliacao, category_id) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO products (nome, descricao, preco, imagem, avaliacao, category_id, company_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
       produto
     );
   }

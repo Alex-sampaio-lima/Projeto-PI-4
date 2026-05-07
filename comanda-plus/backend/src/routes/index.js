@@ -8,6 +8,7 @@ const cartRoutes = require('./cartRoutes');
 const orderRoutes = require('./orderRoutes');
 const addressRoutes = require('./addressRoutes');
 const authRoutes = require('./authRoutes');
+const companyRoutes = require('./companyRoutes');
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router.get('/', (req, res) => {
     sucesso: true,
     mensagem: 'Comanda+ API está funcionando! 🚀',
     versao: '1.0.0',
-    endpoints: ['/products', '/categories', '/cart', '/orders', '/addresses'],
+    endpoints: ['/products', '/categories', '/cart', '/orders', '/addresses', '/companies'],
   });
 });
 
@@ -28,5 +29,6 @@ router.use('/categories', categoryRoutes);
 router.use('/cart', cartRoutes);
 router.use('/orders', orderRoutes);
 router.use('/addresses', addressRoutes);
+router.use('/companies', companyRoutes);
 
 module.exports = router;

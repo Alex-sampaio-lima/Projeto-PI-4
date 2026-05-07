@@ -28,28 +28,31 @@ export function CartProvider({ children }) {
       setTotalCarrinho(dados.total || 0);
     } catch (error) {
       console.error('Erro ao buscar carrinho:', error.message);
-      // Mantém estado atual em caso de erro
     } finally {
       setCarregando(false);
     }
   }, []);
 
-  // Adiciona produto ao carrinho
-  const adicionarAoCarrinho = useCallback(async (productId, quantidade = 1) => {
-    try {
-      // Usamos apenas o array de IDs para não congelar o app inteiro se houver vários cliques
-      setAdicionandoIds((prev) => [...prev, productId]);
-      await carrinhoService.adicionar(productId, quantidade);
-      await buscarCarrinho();
-      Alert.alert('✅ Adicionado ao Carrinho', 'O item foi adicionado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao adicionar ao carrinho:', error.message);
-      Alert.alert('Erro', 'Não foi possível adicionar o item ao carrinho. Tente novamente.');
-      throw error;
-    } finally {
-      setAdicionandoIds((prev) => prev.filter((id) => id !== productId));
-    }
+  // Carrega o carrinho ao montar o componente
+  React.useEffect(() => {
+    buscarCarrinho();
   }, [buscarCarrinho]);
+
+  // Limpa o carrinho
+  const limparCarrinho = useCallback(async () => {
+    try {
+      setCarregando(true);
+      await carrinhoService.limpar();
+      setItensCarrinho([]);
+      setTotalCarrinho(0);
+      Alert.alert('Tudo certo!', 'O carrinho foi esvaziado.');
+    } catch (error) {
+      console.error('Erro ao limpar carrinho:', error.message);
+      Alert.alert('Erro', 'Não foi possível limpar o carrinho. Tente novamente.');
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
 
   // Remove item do carrinho
   const removerDoCarrinho = useCallback(async (itemId) => {
@@ -64,6 +67,45 @@ export function CartProvider({ children }) {
       setCarregando(false);
     }
   }, [buscarCarrinho]);
+
+  // Adiciona produto ao carrinho
+  const adicionarAoCarrinho = useCallback(async (produto, quantidade = 1) => {
+    try {
+      // Verifica se o carrinho já tem itens de outra empresa
+      if (itensCarrinho.length > 0) {
+        const empresaAtualId = itensCarrinho[0].product?.company_id;
+        if (empresaAtualId && produto.company_id && empresaAtualId !== produto.company_id) {
+          Alert.alert(
+            'Limpar carrinho?',
+            'Você só pode adicionar itens de uma loja por vez. Deseja esvaziar seu carrinho atual para adicionar este item?',
+            [
+              { text: 'Cancelar', style: 'cancel' },
+              { 
+                text: 'Limpar e Adicionar', 
+                onPress: async () => {
+                  await limparCarrinho();
+                  // Após limpar, tenta adicionar novamente
+                  setTimeout(() => adicionarAoCarrinho(produto, quantidade), 500);
+                } 
+              }
+            ]
+          );
+          return;
+        }
+      }
+
+      setAdicionandoIds((prev) => [...prev, produto.id]);
+      await carrinhoService.adicionar(produto.id, quantidade);
+      await buscarCarrinho();
+      Alert.alert('✅ Adicionado', `${produto.nome} foi adicionado ao seu pedido!`);
+    } catch (error) {
+      console.error('Erro ao adicionar ao carrinho:', error.message);
+      Alert.alert('Erro', 'Não foi possível adicionar o item. Tente novamente.');
+      throw error;
+    } finally {
+      setAdicionandoIds((prev) => prev.filter((id) => id !== produto.id));
+    }
+  }, [buscarCarrinho, itensCarrinho, limparCarrinho]);
 
   // Atualiza quantidade de um item
   const atualizarQuantidade = useCallback(async (itemId, quantidade) => {
@@ -83,25 +125,9 @@ export function CartProvider({ children }) {
     }
   }, [buscarCarrinho, removerDoCarrinho]);
 
-  // Limpa o carrinho
-  const limparCarrinho = useCallback(async () => {
-    try {
-      setCarregando(true);
-      await carrinhoService.limpar();
-      setItensCarrinho([]);
-      setTotalCarrinho(0);
-      Alert.alert('Tudo certo!', 'O carrinho foi esvaziado.');
-    } catch (error) {
-      console.error('Erro ao limpar carrinho:', error.message);
-      Alert.alert('Erro', 'Não foi possível limpar o carrinho. Tente novamente.');
-    } finally {
-      setCarregando(false);
-    }
-  }, []);
-
   // Quantidade total de itens no carrinho (para exibir no badge)
-  const quantidadeTotalItens = itensCarrinho.reduce(
-    (total, item) => total + item.quantidade,
+  const quantidadeTotalItens = (itensCarrinho || []).reduce(
+    (total, item) => total + (item.quantidade || 0),
     0
   );
 

@@ -1,25 +1,8 @@
 // src/models/userModel.js
 // Model de usuários — cadastro e login com bcryptjs
 
-const db = require('../config/database');
+const { run, get } = require('../config/database');
 const bcrypt = require('bcryptjs');
-
-function run(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) reject(err);
-      else resolve(this);
-    });
-  });
-}
-function get(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
-}
 
 const userModel = {
   // Cria a tabela de usuários se não existir

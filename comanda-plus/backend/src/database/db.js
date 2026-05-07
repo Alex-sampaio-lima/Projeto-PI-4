@@ -23,6 +23,34 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
+// Helpers para facilitar o uso de queries com Promises (padrão solicitado para limpeza)
+const run = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, function (err) {
+      if (err) reject(err);
+      else resolve(this);
+    });
+  });
+};
+
+const get = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+};
+
+const all = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+};
+
 // Função para encerrar a conexão com o banco (útil para testes)
 const closeConnection = () => {
   return new Promise((resolve, reject) => {
@@ -40,3 +68,7 @@ const closeConnection = () => {
 
 module.exports = db;
 module.exports.closeConnection = closeConnection;
+module.exports.run = run;
+module.exports.get = get;
+module.exports.all = all;
+

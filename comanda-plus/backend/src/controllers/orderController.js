@@ -40,7 +40,10 @@ const orderController = {
         preco_unitario: item.preco,
       }));
 
-      const pedido = await orderModel.create({ total, address_id, observacao, itens });
+      // Pega o company_id do primeiro item (pela regra de uma única loja)
+      const company_id = itensCarrinho[0].company_id;
+
+      const pedido = await orderModel.create({ total, address_id, company_id, observacao, itens });
 
       // Limpa o carrinho após criar o pedido
       await cartModel.clearCart();

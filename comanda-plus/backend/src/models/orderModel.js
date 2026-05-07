@@ -1,46 +1,23 @@
 // src/models/orderModel.js
 // Model de pedidos — CRUD com sqlite3
 
-const db = require('../config/database');
-
-function run(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) reject(err);
-      else resolve(this);
-    });
-  });
-}
-function get(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
-}
-function all(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-}
+const { run, get, all } = require('../config/database');
 
 const orderModel = {
   getAll: () => all(`
-    SELECT o.*, a.rua, a.numero, a.bairro, a.cidade, a.estado
+    SELECT o.*, a.rua, a.numero, a.bairro, a.cidade, a.estado, c.nome AS empresa_nome
     FROM orders o
     LEFT JOIN addresses a ON o.address_id = a.id
+    LEFT JOIN companies c ON o.company_id = c.id
     ORDER BY o.created_at DESC
   `),
 
   async getById(id) {
     const pedido = await get(`
-      SELECT o.*, a.rua, a.numero, a.bairro, a.cidade, a.estado
+      SELECT o.*, a.rua, a.numero, a.bairro, a.cidade, a.estado, c.nome AS empresa_nome, c.logo AS empresa_logo
       FROM orders o
       LEFT JOIN addresses a ON o.address_id = a.id
+      LEFT JOIN companies c ON o.company_id = c.id
       WHERE o.id = ?
     `, [id]);
 
@@ -56,11 +33,11 @@ const orderModel = {
     return pedido;
   },
 
-  async create({ total, address_id, observacao, itens }) {
+  async create({ total, address_id, company_id, observacao, itens }) {
     // Cria o pedido
     const r = await run(
-      "INSERT INTO orders (total, address_id, observacao, status) VALUES (?, ?, ?, 'confirmado')",
-      [total, address_id || null, observacao || null]
+      "INSERT INTO orders (total, address_id, company_id, observacao, status) VALUES (?, ?, ?, ?, 'confirmado')",
+      [total, address_id || null, company_id || null, observacao || null]
     );
     const orderId = r.lastID;
 

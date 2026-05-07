@@ -4,7 +4,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/home/HomeScreen';
+import RestaurantesScreen from '../screens/home/RestaurantesScreen';
 import ProdutosScreen from '../screens/produtos/ProdutosScreen';
 import CarrinhoScreen from '../screens/carrinho/CarrinhoScreen';
 import ContaScreen from '../screens/conta/ContaScreen';
@@ -52,7 +52,7 @@ function TabNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Inicio" component={HomeScreen} options={{ tabBarLabel: 'Início' }} />
+      <Tab.Screen name="Inicio" component={RestaurantesScreen} options={{ tabBarLabel: 'Início' }} />
       <Tab.Screen name="Produtos" component={ProdutosScreen} options={{ tabBarLabel: 'Cardápio' }} />
       <Tab.Screen name="Carrinho" component={CarrinhoScreen} options={{ tabBarLabel: 'Carrinho' }} />
       <Tab.Screen name="Conta" component={ContaScreen} options={{ tabBarLabel: 'Conta' }} />

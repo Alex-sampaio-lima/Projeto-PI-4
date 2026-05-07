@@ -1,32 +1,7 @@
 // src/models/productModel.js
 // Model de produtos — CRUD com sqlite3
 
-const db = require('../config/database');
-
-function run(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) reject(err);
-      else resolve(this);
-    });
-  });
-}
-function get(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
-}
-function all(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-}
+const { run, get, all } = require('../config/database');
 
 const SQL_SELECT = `
   SELECT p.*, c.nome AS categoria_nome
@@ -40,20 +15,23 @@ const productModel = {
   getByCategory: (categoryId) =>
     all(`${SQL_SELECT} WHERE p.category_id = ? AND p.disponivel = 1 ORDER BY p.nome ASC`, [categoryId]),
 
+  getByCompany: (companyId) =>
+    all(`${SQL_SELECT} WHERE p.company_id = ? AND p.disponivel = 1 ORDER BY p.nome ASC`, [companyId]),
+
   getById: (id) => get(`${SQL_SELECT} WHERE p.id = ?`, [id]),
 
-  async create({ nome, descricao, preco, imagem, avaliacao, category_id }) {
+  async create({ nome, descricao, preco, imagem, avaliacao, category_id, company_id }) {
     const r = await run(
-      'INSERT INTO products (nome, descricao, preco, imagem, avaliacao, category_id) VALUES (?, ?, ?, ?, ?, ?)',
-      [nome, descricao || null, preco, imagem || null, avaliacao || 0, category_id || null]
+      'INSERT INTO products (nome, descricao, preco, imagem, avaliacao, category_id, company_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [nome, descricao || null, preco, imagem || null, avaliacao || 0, category_id || null, company_id || null]
     );
     return get(`${SQL_SELECT} WHERE p.id = ?`, [r.lastID]);
   },
 
-  async update(id, { nome, descricao, preco, imagem, avaliacao, category_id, disponivel }) {
+  async update(id, { nome, descricao, preco, imagem, avaliacao, category_id, company_id, disponivel }) {
     await run(
-      'UPDATE products SET nome=?, descricao=?, preco=?, imagem=?, avaliacao=?, category_id=?, disponivel=? WHERE id=?',
-      [nome, descricao || null, preco, imagem || null, avaliacao || 0, category_id || null, disponivel ?? 1, id]
+      'UPDATE products SET nome=?, descricao=?, preco=?, imagem=?, avaliacao=?, category_id=?, company_id=?, disponivel=? WHERE id=?',
+      [nome, descricao || null, preco, imagem || null, avaliacao || 0, category_id || null, company_id || null, disponivel ?? 1, id]
     );
     return get(`${SQL_SELECT} WHERE p.id = ?`, [id]);
   },
