@@ -42,6 +42,7 @@ O **Comanda+** é uma aplicação full stack de pedidos com:
 | sqlite3 | ^5.1.x |
 | dotenv | ^16.x |
 | cors | ^2.8.x |
+| Mercado Pago | ^2.x (Checkout Pro) |
 
 ---
 
@@ -186,6 +187,10 @@ Conteúdo do `backend/.env`:
 ```env
 PORT=3000
 DB_PATH=./database.sqlite
+
+# Integração Mercado Pago
+MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
+WEBHOOK_URL=
 ```
 
 Inicie o servidor:
@@ -228,7 +233,19 @@ npm run test:coverage
 
 ---
 
-### 3. Rodar o Mobile
+### 3. Geração de Dados para o Dashboard (PI)
+
+Para fins de Análise de Dados e Estatística (Requisito 3.3 do Roteiro), o backend conta com um script nativo que gera um arquivo `.json` rico com todas as estatísticas calculadas diretamente do banco:
+
+```bash
+cd backend
+npm run exportar-dados
+```
+✅ Isso criará um arquivo chamado `dashboard-estatisticas.json` na raiz do seu backend. Esse arquivo está formatado e pronto para ser importado em sistemas de BI (PowerBI), Excel ou scripts de Python/Pandas.
+
+---
+
+### 4. Rodar o Mobile
 
 Abra um **novo terminal**:
 
@@ -326,6 +343,11 @@ Base URL: `http://localhost:3000/api`
 | PUT | `/addresses/:id` | Atualiza endereço |
 | DELETE | `/addresses/:id` | Remove endereço |
 
+### Dashboard (Análise de Dados)
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/dashboard/export` | Retorna JSON consolidado (faturamento, tickets, top 10 produtos, etc.) |
+
 ---
 
 ## 🌿 Branches
@@ -353,6 +375,14 @@ git push origin feature/minha-feature
 - Dados mock são inseridos apenas na **primeira execução** (quando o banco estiver vazio)
 - O login é **simulado** (qualquer email/senha funciona) — autenticação real pode ser implementada futuramente
 - **Não use `localhost`** no `.env` do mobile — o Expo roda no celular físico e não acessa o localhost do computador
+
+---
+
+## 🎓 Requisitos do Projeto Integrador (PI) Atendidos
+
+1. **3.1 - CRUD (Criar, Ler, Atualizar, Deletar)**: Cumprido 100%. Exemplo visual na tela de Meus Endereços.
+2. **3.2 - Consumo de APIs RESTful**: Cumprido 100%. Mobile utiliza `Axios` para todas as requisições, perfeitamente sincronizado com o banco do backend.
+3. **3.3 - Geração de JSON para Dashboard**: Cumprido 100%. Comando autônomo `npm run exportar-dados` gera um arquivo real e local pronto para análises estatísticas.
 
 ---
 

@@ -11,12 +11,16 @@ import Botao from '../../components/ui/Botao';
 import { enderecosService } from '../../services/endpoints';
 import theme from '../../styles/theme';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 function EnderecosScreen() {
   const navigation = useNavigation();
   const [enderecos, setEnderecos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [enderecoEmEdicao, setEnderecoEmEdicao] = useState(null);
+  const insets = useSafeAreaInsets();
 
   // Campos do formulário
   const [form, setForm] = useState({ rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', cep: '' });
@@ -50,8 +54,14 @@ function EnderecosScreen() {
 
     setSalvando(true);
     try {
-      await enderecosService.criar(form);
+      if (enderecoEmEdicao) {
+        await enderecosService.atualizar(enderecoEmEdicao, form);
+      } else {
+        await enderecosService.criar(form);
+      }
+      
       setModalVisivel(false);
+      setEnderecoEmEdicao(null);
       setForm({ rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', cep: '' });
       await carregarEnderecos();
     } catch (error) {
@@ -61,6 +71,26 @@ function EnderecosScreen() {
     } finally {
       setSalvando(false);
     }
+  }
+
+  function handleEditar(endereco) {
+    setForm({
+      rua: endereco.rua,
+      numero: endereco.numero,
+      complemento: endereco.complemento || '',
+      bairro: endereco.bairro,
+      cidade: endereco.cidade,
+      estado: endereco.estado,
+      cep: endereco.cep,
+    });
+    setEnderecoEmEdicao(endereco.id);
+    setModalVisivel(true);
+  }
+
+  function abrirModalCriar() {
+    setForm({ rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', cep: '' });
+    setEnderecoEmEdicao(null);
+    setModalVisivel(true);
   }
 
   async function handleRemover(id) {
@@ -102,7 +132,7 @@ function EnderecosScreen() {
   return (
     <View style={estilos.tela}>
       {/* Header */}
-      <View style={estilos.header}>
+      <View style={[estilos.header, { paddingTop: Math.max(insets.top + 10, theme.espacamento.xl) }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={estilos.botaoVoltar}>
           <Text style={estilos.setaVoltar}>←</Text>
         </TouchableOpacity>
@@ -127,9 +157,14 @@ function EnderecosScreen() {
                 <Text style={estilos.cep}>CEP: {item.cep}</Text>
                 {item.principal ? <Text style={estilos.principal}>⭐ Principal</Text> : null}
               </View>
-              <TouchableOpacity onPress={() => handleRemover(item.id)}>
-                <Text style={estilos.botaoRemover}>🗑</Text>
-              </TouchableOpacity>
+              <View style={estilos.botoesAcao}>
+                <TouchableOpacity onPress={() => handleEditar(item)} style={estilos.botaoAcao}>
+                  <Text style={estilos.textoBotaoAcao}>✏️</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleRemover(item.id)} style={estilos.botaoAcao}>
+                  <Text style={estilos.textoBotaoAcao}>🗑</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
           contentContainerStyle={estilos.lista}
@@ -144,15 +179,17 @@ function EnderecosScreen() {
       )}
 
       {/* Botão adicionar */}
-      <View style={estilos.footer}>
-        <Botao titulo="+ Adicionar Endereço" onPress={() => setModalVisivel(true)} estilo={estilos.botaoAdicionar} />
+      <View style={[estilos.footer, { paddingBottom: Math.max(insets.bottom, theme.espacamento.md) }]}>
+        <Botao titulo="+ Adicionar Endereço" onPress={abrirModalCriar} estilo={estilos.botaoAdicionar} />
       </View>
 
-      {/* Modal para adicionar endereço */}
+      {/* Modal para adicionar/editar endereço */}
       <Modal visible={modalVisivel} animationType="slide" transparent>
         <View style={estilos.modalOverlay}>
           <View style={estilos.modal}>
-            <Text style={estilos.modalTitulo}>Novo Endereço</Text>
+            <Text style={estilos.modalTitulo}>
+              {enderecoEmEdicao ? 'Editar Endereço' : 'Novo Endereço'}
+            </Text>
 
             <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 10 }}>
               {[
@@ -213,7 +250,9 @@ const estilos = StyleSheet.create({
   cidade: { fontSize: theme.fonte.tamanho.sm, color: theme.cores.cinzaTexto, marginTop: 2 },
   cep: { fontSize: theme.fonte.tamanho.xs, color: theme.cores.cinzaTexto },
   principal: { fontSize: theme.fonte.tamanho.xs, color: theme.cores.primaria, fontWeight: theme.fonte.peso.bold, marginTop: 4 },
-  botaoRemover: { fontSize: 20, padding: 4 },
+  botoesAcao: { flexDirection: 'row', alignItems: 'center', gap: theme.espacamento.sm },
+  botaoAcao: { padding: 4 },
+  textoBotaoAcao: { fontSize: 20 },
   vazio: { alignItems: 'center', paddingTop: theme.espacamento.xxl },
   emojiVazio: { fontSize: 48, marginBottom: theme.espacamento.sm },
   textoVazio: { fontSize: theme.fonte.tamanho.md, color: theme.cores.cinzaTexto },

@@ -12,12 +12,15 @@ import CardRestaurante from '../../components/restaurante/CardRestaurante';
 import CategoriaItem from '../../components/produto/CategoriaItem';
 import theme from '../../styles/theme';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 function RestaurantesScreen() {
   const navigation = useNavigation();
   const [empresas, setEmpresas] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
   const [carregando, setCarregando] = useState(true);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     carregarDadosIniciais();
@@ -61,7 +64,7 @@ function RestaurantesScreen() {
   return (
     <View style={estilos.tela}>
       {/* Header Fixo */}
-      <View style={estilos.header}>
+      <View style={[estilos.header, { paddingTop: Math.max(insets.top + 10, theme.espacamento.xl) }]}>
         <View>
           <Text style={estilos.saudacao}>Olá! 👋</Text>
           <Text style={estilos.pergunta}>Qual restaurante hoje?</Text>

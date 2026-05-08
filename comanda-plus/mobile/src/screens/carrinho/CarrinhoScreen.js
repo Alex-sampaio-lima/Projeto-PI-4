@@ -13,6 +13,8 @@ import { useCart } from '../../hooks/useCart';
 import { formatarMoeda } from '../../utils/format';
 import theme from '../../styles/theme';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 function CarrinhoScreen() {
   const navigation = useNavigation();
   const {
@@ -24,6 +26,7 @@ function CarrinhoScreen() {
     removerDoCarrinho,
     limparCarrinho,
   } = useCart();
+  const insets = useSafeAreaInsets();
 
   // Atualiza o carrinho toda vez que a tela é aberta
   useEffect(() => {
@@ -67,7 +70,7 @@ function CarrinhoScreen() {
   return (
     <View style={estilos.tela}>
       {/* Header */}
-      <View style={estilos.header}>
+      <View style={[estilos.header, { paddingTop: Math.max(insets.top + 10, theme.espacamento.xl) }]}>
         <Text style={estilos.headerTitulo}>Meu Carrinho</Text>
         <TouchableOpacity onPress={handleLimparCarrinho}>
           <Text style={estilos.linkLimpar}>Limpar</Text>
@@ -91,7 +94,7 @@ function CarrinhoScreen() {
       />
 
       {/* Footer com total e botão */}
-      <View style={estilos.footer}>
+      <View style={[estilos.footer, { paddingBottom: Math.max(insets.bottom, theme.espacamento.md) }]}>
         <View style={estilos.resumo}>
           <Text style={estilos.resumoLabel}>{itensCarrinho.length} {itensCarrinho.length === 1 ? 'item' : 'itens'}</Text>
           <View style={estilos.totalRow}>

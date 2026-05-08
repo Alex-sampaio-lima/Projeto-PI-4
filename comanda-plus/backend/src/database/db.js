@@ -66,9 +66,11 @@ const closeConnection = () => {
   });
 };
 
-module.exports = db;
-module.exports.closeConnection = closeConnection;
-module.exports.run = run;
-module.exports.get = get;
-module.exports.all = all;
+module.exports = {
+  db,
+  closeConnection,
+  run,
+  get,
+  all
+};
 

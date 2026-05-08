@@ -13,12 +13,14 @@ import { enderecosService, pedidosService } from '../../services/endpoints';
 import { formatarMoeda, formatarEndereco } from '../../utils/format';
 import theme from '../../styles/theme';
 
+import * as WebBrowser from 'expo-web-browser';
+
 const FORMAS_PAGAMENTO = [
-  { id: 'cartao_credito', nome: 'Cartão de Crédito', icone: '💳' },
-  { id: 'cartao_debito', nome: 'Cartão de Débito', icone: '💳' },
-  { id: 'pix', nome: 'PIX', icone: '⚡' },
-  { id: 'dinheiro', nome: 'Dinheiro', icone: '💵' },
+  { id: 'mercadopago', nome: 'Pagar com Mercado Pago', icone: '💳' },
+  { id: 'dinheiro', nome: 'Dinheiro na Entrega', icone: '💵' },
 ];
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function CheckoutScreen() {
   const navigation = useNavigation();
@@ -29,6 +31,7 @@ function CheckoutScreen() {
   const [pagamentoSelecionado, setPagamentoSelecionado] = useState(null);
   const [carregando, setCarregando] = useState(false);
   const [carregandoEnderecos, setCarregandoEnderecos] = useState(true);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     carregarEnderecos();
@@ -68,12 +71,24 @@ function CheckoutScreen() {
         address_id: enderecoSelecionado.id,
         observacao: `Pagamento: ${pagamentoSelecionado.nome}`,
       });
+      
+      const pedido = resposta.data.dados;
+
+      // Se escolheu Mercado Pago, abre a tela de pagamento
+      if (pagamentoSelecionado.id === 'mercadopago') {
+        const prefResp = await pedidosService.criarPreferencia(pedido.id);
+        const { init_point } = prefResp.data;
+        
+        if (init_point) {
+          await WebBrowser.openBrowserAsync(init_point);
+        }
+      }
 
       // Atualiza o carrinho (que foi limpo pelo backend)
       await buscarCarrinho();
 
       // Navega para a tela de sucesso
-      navigation.navigate('PedidoFinalizado', { pedido: resposta.data.dados });
+      navigation.navigate('PedidoFinalizado', { pedido });
     } catch (error) {
       if (Platform.OS === 'web') window.alert('Erro: Não foi possível finalizar o pedido. Tente novamente.');
       else Alert.alert('Erro', 'Não foi possível finalizar o pedido. Tente novamente.');
@@ -85,7 +100,7 @@ function CheckoutScreen() {
   return (
     <View style={estilos.tela}>
       {/* Header */}
-      <View style={estilos.header}>
+      <View style={[estilos.header, { paddingTop: Math.max(insets.top + 10, theme.espacamento.xl) }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={estilos.botaoVoltar}>
           <Text style={estilos.setaVoltar}>←</Text>
         </TouchableOpacity>
@@ -159,7 +174,7 @@ function CheckoutScreen() {
       </View>
 
       {/* Botão finalizar */}
-      <View style={estilos.footer}>
+      <View style={[estilos.footer, { paddingBottom: Math.max(insets.bottom, theme.espacamento.md) }]}>
         <Botao
           titulo={`Confirmar Pedido • ${formatarMoeda(totalCarrinho)}`}
           onPress={handleFinalizarPedido}

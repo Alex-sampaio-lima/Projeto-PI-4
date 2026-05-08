@@ -13,6 +13,8 @@ import { produtosService, categoriasService } from '../../services/endpoints';
 import { useCart } from '../../hooks/useCart';
 import theme from '../../styles/theme';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 function ProdutosScreen() {
   const navigation = useNavigation();
   const { adicionarAoCarrinho, adicionandoIds } = useCart();
@@ -22,6 +24,7 @@ function ProdutosScreen() {
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
   const [busca, setBusca] = useState('');
   const [carregando, setCarregando] = useState(true);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     carregarDados();
@@ -75,7 +78,7 @@ function ProdutosScreen() {
   return (
     <View style={estilos.tela}>
       {/* Header */}
-      <View style={estilos.header}>
+      <View style={[estilos.header, { paddingTop: Math.max(insets.top + 10, theme.espacamento.xl) }]}>
         <Text style={estilos.headerTitulo}>Cardápio</Text>
 
         {/* Campo de busca */}

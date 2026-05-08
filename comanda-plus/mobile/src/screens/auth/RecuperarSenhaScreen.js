@@ -12,12 +12,15 @@ import Botao from '../../components/ui/Botao';
 import theme from '../../styles/theme';
 import { authService } from '../../services/endpoints';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 function RecuperarSenhaScreen() {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [carregando, setCarregando] = useState(false);
+  const insets = useSafeAreaInsets();
 
   async function handleResetPassword() {
     if (!email || !novaSenha || !confirmarSenha) {
@@ -57,7 +60,7 @@ function RecuperarSenhaScreen() {
     >
       <ScrollView contentContainerStyle={estilos.scroll} keyboardShouldPersistTaps="handled">
         {/* Cabecalho com botão de voltar */}
-        <View style={estilos.cabecalhoFixo}>
+        <View style={[estilos.cabecalhoFixo, { paddingTop: Math.max(insets.top + 10, 40) }]}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={estilos.botaoVoltar}>
             <Ionicons name="arrow-back" size={24} color={theme.cores.textoEscuro} />
           </TouchableOpacity>
@@ -121,7 +124,6 @@ const estilos = StyleSheet.create({
     flexGrow: 1,
   },
   cabecalhoFixo: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingHorizontal: theme.espacamento.lg,
   },
   botaoVoltar: {

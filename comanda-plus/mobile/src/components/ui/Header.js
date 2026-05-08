@@ -6,6 +6,8 @@ import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-nativ
 import { useNavigation } from '@react-navigation/native';
 import theme from '../../styles/theme';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 /**
  * Cabeçalho do app
  *
@@ -17,9 +19,10 @@ import theme from '../../styles/theme';
  */
 function Header({ titulo, mostrarVoltar = false, acaoDireita = null, fundo = theme.cores.primaria }) {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={[estilos.container, { backgroundColor: fundo }]}>
+    <View style={[estilos.container, { backgroundColor: fundo, paddingTop: Math.max(insets.top + 10, theme.espacamento.lg) }]}>
       <StatusBar barStyle="light-content" backgroundColor={fundo} />
 
       {/* Botão voltar */}

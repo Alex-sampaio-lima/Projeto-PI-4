@@ -1,7 +1,7 @@
 // src/database/init.js
 // Cria as tabelas do banco SQLite e insere dados mock iniciais
 
-const db = require('./db');
+const { db } = require('./db');
 const userModel = require('../models/userModel');
 
 /**

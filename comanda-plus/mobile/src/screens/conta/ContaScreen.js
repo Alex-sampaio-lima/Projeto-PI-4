@@ -17,8 +17,11 @@ function ItemMenu({ icone, titulo, onPress }) {
   );
 }
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 function ContaScreen() {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   function handleSair() {
     if (Platform.OS === 'web') {
@@ -56,7 +59,7 @@ function ContaScreen() {
   return (
     <ScrollView style={estilos.tela} contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
       {/* Header */}
-      <View style={estilos.header}>
+      <View style={[estilos.header, { paddingTop: Math.max(insets.top + 10, theme.espacamento.xl) }]}>
         <Text style={estilos.headerTitulo}>Minha Conta</Text>
       </View>
 

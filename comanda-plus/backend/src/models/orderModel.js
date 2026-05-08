@@ -36,7 +36,7 @@ const orderModel = {
   async create({ total, address_id, company_id, observacao, itens }) {
     // Cria o pedido
     const r = await run(
-      "INSERT INTO orders (total, address_id, company_id, observacao, status) VALUES (?, ?, ?, ?, 'confirmado')",
+      "INSERT INTO orders (total, address_id, company_id, observacao, status) VALUES (?, ?, ?, ?, 'pendente')",
       [total, address_id || null, company_id || null, observacao || null]
     );
     const orderId = r.lastID;

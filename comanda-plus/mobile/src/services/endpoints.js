@@ -76,6 +76,9 @@ export const pedidosService = {
   atualizarStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
 
   remover: (id) => api.delete(`/orders/${id}`),
+
+  // Cria preferência no Mercado Pago
+  criarPreferencia: (orderId) => api.post('/payments/create-preference', { order_id: orderId }),
 };
 
 // ===== Endereços ===== //

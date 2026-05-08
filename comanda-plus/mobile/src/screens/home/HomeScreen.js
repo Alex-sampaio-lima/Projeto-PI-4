@@ -12,12 +12,15 @@ import { produtosService } from '../../services/endpoints';
 import { useCart } from '../../hooks/useCart';
 import theme from '../../styles/theme';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 function HomeScreen({ route }) {
   const navigation = useNavigation();
   const { empresa } = route.params || {};
   const { adicionarAoCarrinho, carregando: carregandoGlobal } = useCart();
   const [produtos, setProdutos] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     carregarProdutos();
@@ -63,7 +66,7 @@ function HomeScreen({ route }) {
   return (
     <ScrollView style={estilos.tela} showsVerticalScrollIndicator={false}>
       {/* Header Loja */}
-      <View style={estilos.headerLoja}>
+      <View style={[estilos.headerLoja, { paddingTop: Math.max(insets.top + 10, theme.espacamento.xl) }]}>
         <Text style={estilos.nomeLoja}>{empresa.nome}</Text>
         <Text style={estilos.subLoja}>{empresa.categoria} • {empresa.tempo_entrega}</Text>
       </View>
