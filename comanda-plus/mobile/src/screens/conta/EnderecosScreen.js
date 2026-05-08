@@ -73,6 +73,34 @@ function EnderecosScreen() {
     }
   }
 
+  async function buscarCep(cepDigitado) {
+    // Atualiza o estado visualmente primeiro
+    setForm(prev => ({ ...prev, cep: cepDigitado }));
+    
+    // Extrai apenas números
+    const cepLimpo = cepDigitado.replace(/\D/g, '');
+    
+    if (cepLimpo.length === 8) {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+        const data = await response.json();
+        
+        if (!data.erro) {
+          // Se o ViaCEP achou, preenchemos os campos
+          setForm(prev => ({
+            ...prev,
+            rua: data.logradouro || prev.rua,
+            bairro: data.bairro || prev.bairro,
+            cidade: data.localidade || prev.cidade,
+            estado: data.uf || prev.estado,
+          }));
+        }
+      } catch (error) {
+        console.error('ViaCEP error:', error);
+      }
+    }
+  }
+
   function handleEditar(endereco) {
     setForm({
       rua: endereco.rua,
@@ -193,13 +221,13 @@ function EnderecosScreen() {
 
             <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 10 }}>
               {[
+                ['CEP', 'cep', '01310-100'],
                 ['Rua / Avenida', 'rua', 'Rua das Flores'],
                 ['Número', 'numero', '123'],
                 ['Complemento (opcional)', 'complemento', 'Apto 4B'],
                 ['Bairro', 'bairro', 'Centro'],
                 ['Cidade', 'cidade', 'São Paulo'],
                 ['Estado (UF)', 'estado', 'SP'],
-                ['CEP', 'cep', '01310-100'],
               ].map(([label, campo, placeholder]) => (
                 <View key={campo}>
                   <Text style={estilos.labelModal}>{label}</Text>
@@ -208,7 +236,15 @@ function EnderecosScreen() {
                     placeholder={placeholder}
                     placeholderTextColor={theme.cores.cinzaTexto}
                     value={form[campo]}
-                    onChangeText={(val) => setForm({ ...form, [campo]: val })}
+                    onChangeText={(val) => {
+                      if (campo === 'cep') {
+                        buscarCep(val);
+                      } else {
+                        setForm({ ...form, [campo]: val });
+                      }
+                    }}
+                    keyboardType={campo === 'cep' ? 'numeric' : 'default'}
+                    maxLength={campo === 'cep' ? 9 : undefined}
                   />
                 </View>
               ))}
