@@ -1,9 +1,9 @@
 {
-  "data_geracao": "2026-05-07T23:51:52.069Z",
+  "data_geracao": "2026-05-08T00:49:22.659Z",
   "resumo": {
-    "total_pedidos": 4,
-    "faturamento_total": 332.9,
-    "ticket_medio": 83.225
+    "total_pedidos": 5,
+    "faturamento_total": 377.9,
+    "ticket_medio": 75.58
   },
   "vendas_por_empresa": [],
   "produtos_mais_vendidos": [
@@ -12,6 +12,12 @@
       "empresa": "Burger King",
       "quantidade_vendida": 7,
       "receita_gerada": 244.3
+    },
+    {
+      "produto": "Gelato 500ml",
+      "empresa": "Bacio di Latte",
+      "quantidade_vendida": 1,
+      "receita_gerada": 45
     },
     {
       "produto": "Salada Caesar",
@@ -45,7 +51,7 @@
     },
     {
       "status": "pendente",
-      "quantidade": 1
+      "quantidade": 2
     }
   ]
 }

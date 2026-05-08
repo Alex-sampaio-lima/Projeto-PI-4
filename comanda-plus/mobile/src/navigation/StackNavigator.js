@@ -18,6 +18,8 @@ function StackNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false, // Headers customizados em cada tela
+        headerBackTitleVisible: false, // Oculta o texto "TabMain" no botão voltar (iOS)
+        headerBackTitle: 'Voltar', // Texto de fallback caso esteja visível
       }}
     >
       {/* Telas com tabs */}

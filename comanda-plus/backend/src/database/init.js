@@ -165,9 +165,9 @@ async function inserirDadosMock() {
 
   // Empresas
   const empresas = [
-    ['Burger King', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Burger_King_2020.svg/1024px-Burger_King_2020.svg.png', 'https://burgerking.com.br/banner.jpg', '20-30 min', 5.90, 4.5, 'Hambúrguer'],
-    ['Dominos Pizza', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Domino%27s_pizza_logo.svg/1200px-Domino%27s_pizza_logo.svg.png', 'https://dominos.com.br/banner.jpg', '35-45 min', 0.00, 4.7, 'Pizza'],
-    ['Saúde no Copo', 'https://saudenocopo.com.br/logo.png', 'https://saudenocopo.com.br/banner.jpg', '15-25 min', 7.50, 4.8, 'Saudável'],
+    ['Burger King', 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=200', 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800', '20-30 min', 5.90, 4.5, 'Hambúrguer'],
+    ['Dominos Pizza', 'https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=200', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800', '35-45 min', 0.00, 4.7, 'Pizza'],
+    ['Saúde no Copo', 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=200', 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800', '15-25 min', 7.50, 4.8, 'Saudável'],
   ];
 
   const empIds = [];

@@ -81,20 +81,21 @@ function RestaurantesScreen() {
         {/* Categorias */}
         <View style={estilos.secaoCategorias}>
           <Text style={estilos.secaoTitulo}>Categorias</Text>
-          <FlatList
-            data={categorias}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={estilos.listaCategorias}
-            renderItem={({ item }) => (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.listaCategorias}>
+            <CategoriaItem
+              categoria={{ id: null, nome: 'Todos', icone: '🍽️' }}
+              selecionada={categoriaSelecionada === null}
+              onPress={() => setCategoriaSelecionada(null)}
+            />
+            {categorias.map((item) => (
               <CategoriaItem
+                key={item.id}
                 categoria={item}
                 selecionada={categoriaSelecionada?.id === item.id}
                 onPress={() => handleSelecionarCategoria(item)}
               />
-            )}
-          />
+            ))}
+          </ScrollView>
         </View>
 
         {/* Lista de Restaurantes */}
