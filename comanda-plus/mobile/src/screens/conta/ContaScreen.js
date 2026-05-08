@@ -99,7 +99,7 @@ function ContaScreen() {
           <ItemMenu
             icone="💳"
             titulo="Pagamento"
-            onPress={() => Alert.alert('Em breve', 'Formas de pagamento em desenvolvimento.')}
+            onPress={() => navigation.navigate('Pagamentos')}
           />
           <View style={estilos.divisorMenu} />
           <ItemMenu

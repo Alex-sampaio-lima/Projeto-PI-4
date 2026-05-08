@@ -9,6 +9,7 @@ import DetalheProdutoScreen from '../screens/produtos/DetalheProdutoScreen';
 import CheckoutScreen from '../screens/carrinho/CheckoutScreen';
 import PedidoFinalizadoScreen from '../screens/pedido/PedidoFinalizadoScreen';
 import EnderecosScreen from '../screens/conta/EnderecosScreen';
+import PagamentosScreen from '../screens/conta/PagamentosScreen';
 import theme from '../styles/theme';
 
 const Stack = createStackNavigator();
@@ -37,6 +38,7 @@ function StackNavigator() {
       <Stack.Screen name="Checkout" component={CheckoutScreen} />
       <Stack.Screen name="PedidoFinalizado" component={PedidoFinalizadoScreen} />
       <Stack.Screen name="Enderecos" component={EnderecosScreen} />
+      <Stack.Screen name="Pagamentos" component={PagamentosScreen} />
     </Stack.Navigator>
   );
 }
