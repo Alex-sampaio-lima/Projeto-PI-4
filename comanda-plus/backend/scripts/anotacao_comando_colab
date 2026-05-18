@@ -1,0 +1,19 @@
+#comando para copiar e colar no google colab e gerar o dash do prof
+import pandas as pd
+import json
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Carregar o JSON
+with open('/dashboard-comanda-plus.json', 'r') as f:
+    data = json.load(f)
+
+    # 1. Resumo
+…    plt.ylabel('Quantidade')
+    # Adicionar rótulos nas barras
+    for container in ax.containers:
+        ax.bar_label(container, padding=3)
+        plt.tight_layout()
+        plt.show()
+
+        print("✅ Dashboard gerado com sucesso!")
