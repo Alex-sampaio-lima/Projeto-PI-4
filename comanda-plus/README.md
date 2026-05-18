@@ -57,32 +57,45 @@ O **Comanda+** é uma aplicação full stack de pedidos com:
 │   │   │   └── database.js          → Re-export da instância do banco
 │   │   ├── 📁 controllers/
 │   │   │   ├── addressController.js
+│   │   │   ├── authController.js    → Controller de cadastro e login
 │   │   │   ├── cartController.js
 │   │   │   ├── categoryController.js
+│   │   │   ├── companyController.js → Controller para gestão de restaurantes
+│   │   │   ├── dashboardController.js → Controller de dados estatísticos (BI)
 │   │   │   ├── orderController.js
+│   │   │   ├── paymentController.js → Controller do Mercado Pago (Checkout Pro)
 │   │   │   └── productController.js
 │   │   ├── 📁 database/
-│   │   │   ├── db.js                → Conexão SQLite
-│   │   │   └── init.js              → Criação de tabelas + dados mock
+│   │   │   ├── db.js                → Conexão SQLite com Promises
+│   │   │   └── init.js              → Criação de tabelas + dados mock de seed
 │   │   ├── 📁 middlewares/
-│   │   │   └── errorHandler.js      → Tratamento global de erros
+│   │   │   ├── errorHandler.js      → Tratamento global de erros
+│   │   │   └── validationMiddleware.js → Processamento de validação do express-validator
 │   │   ├── 📁 models/
 │   │   │   ├── addressModel.js
 │   │   │   ├── cartModel.js
 │   │   │   ├── categoryModel.js
+│   │   │   ├── companyModel.js      → Modelo relacional para restaurantes
 │   │   │   ├── orderModel.js
-│   │   │   └── productModel.js
+│   │   │   ├── productModel.js
+│   │   │   └── userModel.js         → Modelo para usuários com senhas seguras (bcryptjs)
 │   │   ├── 📁 routes/
-│   │   │   ├── index.js             → Agrupador de rotas
+│   │   │   ├── index.js             → Agrupador central de rotas da API
 │   │   │   ├── addressRoutes.js
+│   │   │   ├── authRoutes.js        → Rotas de autenticação
 │   │   │   ├── cartRoutes.js
 │   │   │   ├── categoryRoutes.js
+│   │   │   ├── companyRoutes.js     → Rotas para obter restaurantes
+│   │   │   ├── dashboardRoutes.js   → Rota para exportar estatísticas da API
 │   │   │   ├── orderRoutes.js
+│   │   │   ├── paymentRoutes.js     → Rotas de criação de preferência e webhook do MP
 │   │   │   └── productRoutes.js
 │   │   ├── 📁 utils/
 │   │   │   └── helpers.js           → Funções auxiliares
-│   │   └── app.js                   → Configuração do Express
-│   ├── server.js                    → Entry point do servidor
+│   │   ├── 📁 validators/
+│   │   │   └── index.js             → Esquemas de validação utilizando express-validator
+│   │   └── app.js                   → Instanciação e middlewares globais do Express
+│   ├── server.js                    → Entry point do servidor HTTP
 │   ├── .env
 │   ├── .env.example
 │   └── package.json
@@ -99,16 +112,18 @@ O **Comanda+** é uma aplicação full stack de pedidos com:
 │   │   │   ├── produto/
 │   │   │   │   ├── CardProduto.js   → Card de produto com imagem e preço
 │   │   │   │   └── CategoriaItem.js → Chip de filtro de categoria
-│   │   │   └── carrinho/
-│   │   │       └── ItemCarrinho.js  → Item do carrinho com quantidade
+│   │   │   ├── carrinho/
+│   │   │   │   └── ItemCarrinho.js  → Item do carrinho com quantidade
+│   │   │   └── restaurante/
+│   │   │       └── CardRestaurante.js → Card de restaurante com avaliação e tempo
 │   │   ├── 📁 context/
 │   │   │   └── CartContext.js       → Estado global do carrinho
 │   │   ├── 📁 hooks/
-│   │   │   └── useCart.js           → Hook para acessar o carrinho
+│   │   │   └── useCart.js           → Hook customizado para uso do carrinho
 │   │   ├── 📁 navigation/
-│   │   │   ├── AppNavigator.js      → Root: Login → App
-│   │   │   ├── StackNavigator.js    → Stack com Tabs + telas de detalhe
-│   │   │   └── TabNavigator.js      → Bottom Tabs (4 abas)
+│   │   │   ├── AppNavigator.js      → Root Navigator (Login vs App)
+│   │   │   ├── StackNavigator.js    → Fluxos e telas detalhadas do App
+│   │   │   └── TabNavigator.js      → Abas principais de navegação inferior
 │   │   ├── 📁 screens/
 │   │   │   ├── auth/
 │   │   │   │   └── LoginScreen.js
@@ -126,22 +141,21 @@ O **Comanda+** é uma aplicação full stack de pedidos com:
 │   │   │       ├── ContaScreen.js
 │   │   │       └── EnderecosScreen.js
 │   │   ├── 📁 services/
-│   │   │   ├── api.js               → Instância Axios configurada
-│   │   │   └── endpoints.js         → Funções para cada endpoint
+│   │   │   ├── api.js               → Instância Axios com IP do host autodetectado
+│   │   │   └── endpoints.js         → Funções utilitárias de requisição HTTP
 │   │   ├── 📁 styles/
-│   │   │   ├── theme.js             → Design tokens (cores, tipografia)
-│   │   │   └── globalStyles.js      → Estilos compartilhados
+│   │   │   ├── theme.js             → Design tokens (cores oficiais, tipografia)
+│   │   │   └── globalStyles.js      → Estilos globais compartilhados do app
 │   │   └── 📁 utils/
-│   │       └── format.js            → Formatação de moeda, data, endereço
-│   ├── App.js                       → Entry point do app
-│   ├── app.json                     → Configuração do Expo
+│   │       └── format.js            → Formatação de dinheiro, data e endereços
+│   ├── App.js                       → Entry point do React Native / Expo
+│   ├── app.json                     → Configuração nativa e build do Expo
 │   ├── babel.config.js
 │   ├── .env
 │   ├── .env.example
 │   └── package.json
 │
 ├── .gitignore
-├── package.json                     → Scripts raiz
 └── README.md
 ```
 
@@ -233,15 +247,38 @@ npm run test:coverage
 
 ---
 
-### 3. Geração de Dados para o Dashboard (PI)
+### 3. Geração de Dados para o Dashboard & Análise Estatística (PI)
 
-Para fins de Análise de Dados e Estatística (Requisito 3.3 do Roteiro), o backend conta com um script nativo que gera um arquivo `.json` rico com todas as estatísticas calculadas diretamente do banco:
+Para fins de Análise de Dados e Estatística (Requisito do Roteiro Acadêmico do Projeto Integrador), o backend conta com um ecossistema completo para geração e análise de dados de vendas simulados:
 
+#### A. Seed de Dados de Massa (Múltiplas Vendas)
+Para que os gráficos e análises fiquem ricos e realistas, você pode popular o banco de dados com centenas de registros de vendas simuladas (distribuídas entre anos, meses, categorias, clientes e bairros diferentes):
+```bash
+cd backend
+npm run db:seed-large
+```
+*(Esse comando preenche as tabelas de pedidos com dados consistentes usando o Faker).*
+
+#### B. Exportação para Relatórios de BI (PowerBI / Excel)
+Para exportar um consolidado analítico de faturamento, tickets e produtos com agregações prontas:
 ```bash
 cd backend
 npm run exportar-dados
 ```
-✅ Isso criará um arquivo chamado `dashboard-estatisticas.json` na raiz do seu backend. Esse arquivo está formatado e pronto para ser importado em sistemas de BI (PowerBI), Excel ou scripts de Python/Pandas.
+✅ Isso criará o arquivo **`dashboard-estatisticas.json`** na raiz da pasta `backend`. Este arquivo está formatado e resumido, ideal para ser importado diretamente no PowerBI ou Excel.
+
+#### C. Exportação e Análise Avançada no Google Colab (Python / Pandas)
+Para realizar uma análise estatística de dados detalhada no Google Colab de acordo com os requisitos acadêmicos, use o script de exportação plano:
+```bash
+cd backend
+npm run db:export-colab
+```
+✅ Isso criará o arquivo **`dashboard-comanda-plus.json`** na raiz do seu `backend`, contendo colunas planas (`Data`, `Ano`, `Mês`, `Vendedor`, `Cliente`, `Região`, `Produto`, `Valor`, `FormaPgto`) ideais para modelagem em Pandas.
+
+👉 **Como executar a análise no Google Colab:**
+1. Copie o código contido em [codigo_colab.py](file:///c:/Users/sthep/Documents/GitHub/Projeto-PI-4/comanda-plus/backend/scripts/codigo_colab.py) ou siga o passo a passo em [codigo_colab.md](file:///c:/Users/sthep/Documents/GitHub/Projeto-PI-4/comanda-plus/backend/scripts/codigo_colab.md).
+2. Faça o upload do arquivo `dashboard-comanda-plus.json` gerado na aba lateral do seu caderno do Google Colab.
+3. Execute as células para gerar automaticamente gráficos ricos de faturamento por bairro, sazonalidade de restaurantes, ranking de produtos e mapa de calor!
 
 ---
 
@@ -274,22 +311,25 @@ O aplicativo será aberto no seu navegador padrão em `http://localhost:8081`.
 
 ## 🗄️ Banco de Dados
 
-O banco SQLite é gerenciado automaticamente. Tabelas criadas:
+O banco SQLite é gerenciado automaticamente. Tabelas criadas e ativas:
 
 | Tabela | Descrição |
 |---|---|
+| `users` | Usuários do sistema (com criptografia bcryptjs nas senhas) |
+| `companies` | Restaurantes/Lojas parceiras cadastrados no marketplace |
 | `categories` | Categorias dos produtos |
-| `products` | Produtos com preço, imagem e avaliação |
-| `cart` | Itens do carrinho de compras |
-| `orders` | Pedidos realizados |
-| `order_items` | Itens de cada pedido |
-| `addresses` | Endereços de entrega |
+| `products` | Produtos com preço, imagem, avaliação e chave estrangeira para empresa |
+| `cart` | Itens temporários do carrinho de compras do cliente |
+| `orders` | Pedidos realizados pelo cliente (com empresa, endereço e forma de pagamento) |
+| `order_items` | Itens detalhados de cada pedido realizado (preço histórico e quantidade) |
+| `addresses` | Endereços de entrega vinculados ao perfil do usuário |
 
 ### Dados Mock (inseridos automaticamente)
 
-- **5 categorias:** Hambúrguer, Pizza, Bebidas, Sobremesas, Saudável
-- **10 produtos** com nome, descrição, preço, imagem (Unsplash) e avaliação
-- **1 endereço** de exemplo pré-cadastrado
+- **5 Restaurantes:** McDonald's, Pizza Hut, Subway, Starbucks, etc.
+- **5 Categorias:** Hambúrguer, Pizza, Bebidas, Sobremesas, Saudável.
+- **10 Produtos** com imagens do Unsplash vinculados a seus respectivos restaurantes.
+- **1 Endereço** e **1 Conta de Usuário de teste** pré-cadastrada.
 
 ---
 
@@ -297,7 +337,20 @@ O banco SQLite é gerenciado automaticamente. Tabelas criadas:
 
 Base URL: `http://localhost:3000/api`
 
-### Produtos
+### 🔑 Autenticação
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/auth/register` | Cria uma nova conta de usuário |
+| POST | `/auth/login` | Realiza login e valida credenciais |
+| POST | `/auth/reset-password` | Simula redefinição de senha |
+
+### 🏬 Empresas (Restaurantes)
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/companies` | Lista todas as empresas (com filtro opcional por categoria) |
+| GET | `/companies/:id` | Detalhes de um restaurante específico e seus produtos |
+
+### 🍔 Produtos
 | Método | Rota | Descrição |
 |---|---|---|
 | GET | `/products` | Lista todos os produtos |
@@ -307,7 +360,7 @@ Base URL: `http://localhost:3000/api`
 | PUT | `/products/:id` | Atualiza produto |
 | DELETE | `/products/:id` | Remove produto |
 
-### Categorias
+### 📁 Categorias
 | Método | Rota | Descrição |
 |---|---|---|
 | GET | `/categories` | Lista todas as categorias |
@@ -316,7 +369,7 @@ Base URL: `http://localhost:3000/api`
 | PUT | `/categories/:id` | Atualiza categoria |
 | DELETE | `/categories/:id` | Remove categoria |
 
-### Carrinho
+### 🛒 Carrinho
 | Método | Rota | Descrição |
 |---|---|---|
 | GET | `/cart` | Lista itens + total |
@@ -325,28 +378,34 @@ Base URL: `http://localhost:3000/api`
 | DELETE | `/cart/:id` | Remove item |
 | DELETE | `/cart/clear` | Limpa o carrinho inteiro |
 
-### Pedidos
+### 📦 Pedidos
 | Método | Rota | Descrição |
 |---|---|---|
 | GET | `/orders` | Lista todos os pedidos |
-| GET | `/orders/:id` | Busca pedido com itens |
-| POST | `/orders` | Cria pedido (usa o carrinho atual) |
+| GET | `/orders/:id` | Busca pedido com itens detalhados |
+| POST | `/orders` | Cria pedido (converte o carrinho atual em pedido) |
 | PUT | `/orders/:id/status` | Atualiza status do pedido |
 | DELETE | `/orders/:id` | Remove pedido |
 
-### Endereços
+### 📍 Endereços
 | Método | Rota | Descrição |
 |---|---|---|
-| GET | `/addresses` | Lista endereços |
+| GET | `/addresses` | Lista todos os endereços |
 | GET | `/addresses/:id` | Busca endereço por ID |
 | POST | `/addresses` | Cria novo endereço |
 | PUT | `/addresses/:id` | Atualiza endereço |
 | DELETE | `/addresses/:id` | Remove endereço |
 
-### Dashboard (Análise de Dados)
+### 💳 Pagamentos (Mercado Pago)
 | Método | Rota | Descrição |
 |---|---|---|
-| GET | `/dashboard/export` | Retorna JSON consolidado (faturamento, tickets, top 10 produtos, etc.) |
+| POST | `/payments/create-preference` | Cria preferência de pagamento no Mercado Pago (Checkout Pro) |
+| POST | `/payments/webhook` | Webhook para recebimento de atualizações de transações |
+
+### 📊 Dashboard (BI / Estatísticas)
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/dashboard/export` | Retorna JSON estruturado e agregado para fins analíticos de BI |
 
 ---
 

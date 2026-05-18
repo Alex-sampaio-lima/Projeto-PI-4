@@ -106,6 +106,7 @@ async function criarTabelas() {
       address_id INTEGER,
       company_id INTEGER,
       observacao TEXT,
+      forma_pagamento TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (address_id) REFERENCES addresses(id),
       FOREIGN KEY (company_id) REFERENCES companies(id)
@@ -130,6 +131,9 @@ async function criarTabelas() {
   } catch (e) {}
   try {
     await run('ALTER TABLE orders ADD COLUMN company_id INTEGER REFERENCES companies(id)');
+  } catch (e) {}
+  try {
+    await run('ALTER TABLE orders ADD COLUMN forma_pagamento TEXT');
   } catch (e) {}
 
   // Tabela de usuários
@@ -168,6 +172,8 @@ async function inserirDadosMock() {
     ['Burger King', 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=200', 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800', '20-30 min', 5.90, 4.5, 'Hambúrguer'],
     ['Dominos Pizza', 'https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=200', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800', '35-45 min', 0.00, 4.7, 'Pizza'],
     ['Saúde no Copo', 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=200', 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800', '15-25 min', 7.50, 4.8, 'Saudável'],
+    ['Bacio di Latte', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6A7p8P9z3Z2N_I5P5k0L-M_6xXQnF5r9_WA&s', 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=800', '20-35 min', 4.90, 4.9, 'Sobremesas'],
+    ['Adega 24h', 'https://previews.123rf.com/images/vectorv/vectorv1908/vectorv190833113/129215777-wine-bottle-icon-design-template-vector-isolated.jpg', 'https://images.unsplash.com/photo-1528823872057-9c018a7a72b5?w=800', '15-25 min', 0.00, 4.6, 'Bebidas']
   ];
 
   const empIds = [];
@@ -178,11 +184,21 @@ async function inserirDadosMock() {
 
   // Produtos
   const produtos = [
+    // Hambúrguer
     ['Combo Burguer Bacon', 'Hambúrguer artesanal com bacon crocante, queijo cheddar.', 29.90, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', 4.8, catIds[0], empIds[0]],
     ['Big Beef Flavor', 'Dois hambúrgueres de carne angus.', 34.90, 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400', 4.6, catIds[0], empIds[0]],
+    // Pizza
     ['Pizza Margherita', 'Clássica e irresistível.', 42.90, 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', 4.7, catIds[1], empIds[1]],
     ['Pizza Pepperoni', 'Pepperoni defumado.', 47.90, 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400', 4.9, catIds[1], empIds[1]],
+    // Saudável
     ['Bowl Frango Grelhado', 'Bowl saudável.', 31.90, 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400', 4.7, catIds[4], empIds[2]],
+    // Sobremesas
+    ['Gelato 500ml', 'Sabor Bacio di Latte clássico.', 45.00, 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400', 4.9, catIds[3], empIds[3]],
+    ['Picolé de Pistache', 'Pistache italiano original.', 14.50, 'https://images.unsplash.com/photo-1488900128323-21503983a07e?w=400', 4.8, catIds[3], empIds[3]],
+    // Bebidas
+    ['Coca-Cola 2L', 'Gelada e refrescante.', 12.00, 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400', 4.6, catIds[2], empIds[4]],
+    ['Cerveja Heineken 330ml', 'Long neck gelada.', 8.90, 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400', 4.7, catIds[2], empIds[4]],
+    ['Vinho Tinto Chileno', 'Cabernet Sauvignon 750ml.', 55.00, 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400', 4.8, catIds[2], empIds[4]]
   ];
 
   for (const produto of produtos) {

@@ -1,0 +1,516 @@
+# 📊 Caderno de Análise de Dados: Google Colab — Comanda+
+
+Este documento contém o código-fonte completo e otimizado do caderno de análise estatística de vendas do **Comanda+**.
+
+Nesta versão, todas as células estão na sequência correta de **1 a 12** sem saltos, restaurando a **Célula 9 (Mapa de Calor de Sazonalidade)**. Adicionalmente, todos os comentários no início de cada código Python seguem a mesma formatação visual elegante.
+
+---
+
+## ── CÉLULA 1: Inicialização e Paleta de Cores ──────────────────────────────────
+**Objetivo:** Importar as bibliotecas necessárias para ciência de dados, desativar alertas e definir a identidade visual do **Comanda+** (Tema Dark Premium) com as cores da marca.
+
+```python
+# ── CÉLULA 1: Inicialização e Paleta de Cores ──────────────────────────────────
+# =============================================================================
+# 📊 ANÁLISE DE VENDAS COMANDA+ — Google Colab
+# Base: dashboard-comanda-plus.json
+# Dimensões: Data | Ano | Mês | Vendedor | Cliente | Região | Produto | Valor | FormaPgto
+# =============================================================================
+
+# Instalação das bibliotecas científicas de dados (descomente se necessário)
+# !pip install -q matplotlib seaborn pandas plotly
+
+import json
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
+import seaborn as sns
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import os
+import warnings
+warnings.filterwarnings('ignore')
+
+# Identidade Visual e Paleta de Cores Oficial do Comanda+
+ACCENT = '#8b5cf6'  # Roxo principal do aplicativo
+PALETTE = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#f43f5e']
+
+# Configuração de Estilo Global de Gráficos (Tema Escuro Customizado)
+plt.rcParams.update({
+    'figure.facecolor': '#0f0f1a',
+    'axes.facecolor':   '#1a1a2e',
+    'axes.edgecolor':   '#30304a',
+    'axes.labelcolor':  '#e2e2e9',
+    'xtick.color':      '#a2a2bf',
+    'ytick.color':      '#a2a2bf',
+    'text.color':       '#ffffff',
+    'grid.color':       '#30304a',
+    'grid.alpha':       0.5,
+    'font.family':      'sans-serif',
+    'font.size':        11
+})
+
+print("✅ Célula 1 executada: Ambiente e Paleta de Cores do Comanda+ configurados!")
+```
+
+---
+
+## ── CÉLULA 2: Leitura do JSON e DataFrame Pandas ───────────────────────────
+**Objetivo:** Carregar o arquivo JSON mantendo as colunas originais do banco de dados e estruturar a tabela em memória ordenando cronologicamente.
+
+```python
+# ── CÉLULA 2: Leitura do JSON e DataFrame Pandas ───────────────────────────
+arquivo_json = 'dashboard-comanda-plus.json'
+
+if not os.path.exists(arquivo_json):
+    raise FileNotFoundError(f"❌ O arquivo '{arquivo_json}' não foi encontrado! Faça o upload na barra lateral do Colab antes de rodar.")
+
+# Carregar o arquivo JSON
+with open(arquivo_json, 'r', encoding='utf-8') as f:
+    payload = json.load(f)
+
+# Criar DataFrame com os dados de vendas
+df = pd.DataFrame(payload['dados'])
+
+# Tipagem correta dos campos
+df['Data'] = pd.to_datetime(df['Data'])
+df['Valor'] = df['Valor'].astype(float)
+df['Ano'] = df['Ano'].astype(int)
+
+# Ordenar por data cronológica
+df = df.sort_values('Data')
+
+print(f"✅ Célula 2 executada: {len(df)} registros de vendas carregados com sucesso!")
+print("\n📋 Amostra dos dados do Comanda+:")
+display(df.head())
+```
+
+---
+
+## ── CÉLULA 3: Indicadores de Desempenho (KPIs) ──────────────────────────────
+**Objetivo:** Exibir cartões analíticos consolidados com faturamento total, ticket médio e contagem de clientes e parceiros ativos.
+
+```python
+# ── CÉLULA 3: Indicadores de Desempenho (KPIs) ──────────────────────────────
+# Cálculo das métricas gerais baseando-se nas colunas do JSON
+faturamento_total = df['Valor'].sum()
+total_itens_vendidos = len(df)
+ticket_medio = df['Valor'].mean()
+numero_clientes_unicos = df['Cliente'].nunique()
+numero_restaurantes = df['Vendedor'].nunique()
+
+print("=" * 60)
+print("📊 INDICADORES CHAVE DE DESEMPENHO (KPIs)")
+print("=" * 60)
+print(f"💰 Faturamento Total : R$ {faturamento_total:,.2f}")
+print(f"📦 Itens Vendidos   : {total_itens_vendidos} unidades")
+print(f"🎫 Ticket Médio      : R$ {ticket_medio:,.2f}")
+print(f"👥 Clientes Únicos   : {numero_clientes_unicos}")
+print(f"🏬 Restaurantes      : {numero_restaurantes}")
+print("=" * 60)
+```
+
+---
+
+## ── CÉLULA 4: Faturamento por Período (Mensal e Anual) ──────────────────────
+**Objetivo:** Calcular a receita de vendas por mês e por ano, plotar a evolução temporal, exportar imagens PNG e exibir os dados tabulados logo abaixo.
+
+```python
+# ── CÉLULA 4: Faturamento por Período (Mensal e Anual) ──────────────────────
+# 1. Preparar vendas_mes agrupando por 'Mês' e gerando colunas minúsculas para compatibilidade
+vendas_mes = df.groupby('Mês').agg(total=('Valor', 'sum'), pedidos=('Valor', 'count')).reset_index()
+vendas_mes.columns = ['mes', 'total', 'pedidos']
+vendas_mes['ticket'] = vendas_mes['total'] / vendas_mes['pedidos']
+
+# Ordenação cronológica correta dos meses do ano
+meses_ordem = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+vendas_mes['mes'] = pd.Categorical(vendas_mes['mes'], categories=meses_ordem, ordered=True)
+vendas_mes = vendas_mes.sort_values('mes')
+
+# 2. Preparar vendas_ano
+vendas_ano = df.groupby('Ano').agg(total=('Valor', 'sum'), pedidos=('Valor', 'count')).reset_index()
+vendas_ano.columns = ['ano', 'total', 'pedidos']
+vendas_ano['ticket'] = vendas_ano['total'] / vendas_ano['pedidos']
+
+# 3. Evolução de faturamento por data
+df_evolucao = df.groupby(['Ano', 'Mês', df['Data'].dt.strftime('%Y-%m')]).agg({'Valor': 'sum'}).reset_index()
+df_evolucao.columns = ['ano', 'mes', 'AnoMes', 'Faturamento']
+df_evolucao = df_evolucao.sort_values('AnoMes')
+
+# Gráfico de evolução mensal do faturamento
+plt.figure(figsize=(12, 6))
+plt.plot(df_evolucao['AnoMes'], df_evolucao['Faturamento'], marker='o', linewidth=2.5, color=ACCENT, label='Faturamento')
+plt.fill_between(df_evolucao['AnoMes'], df_evolucao['Faturamento'], color=ACCENT, alpha=0.15)
+plt.title('Evolução do Faturamento Mensal (2025 - 2026)', fontsize=14, fontweight='bold', pad=20)
+plt.xlabel('Mês/Ano', fontsize=12, labelpad=10)
+plt.ylabel('Faturamento (R$)', fontsize=12, labelpad=10)
+plt.xticks(rotation=45)
+plt.grid(True)
+ax = plt.gca()
+ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f"R$ {x:,.0f}"))
+plt.tight_layout()
+plt.savefig('vendas_por_mes.png', facecolor='#0f0f1a', dpi=150)
+plt.show()
+
+# Exibir os dados da evolução mensal no console
+print("\n📋 DADOS CONSOLIDADOS POR MÊS:")
+print(vendas_mes.to_string(index=False))
+
+# Gráfico de faturamento por ano
+plt.figure(figsize=(6, 4))
+bars = plt.bar(vendas_ano['ano'].astype(str), vendas_ano['total'], color=PALETTE[1:3], edgecolor='#30304a', width=0.5)
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2., height + (height*0.01), f"R$ {height:,.2f}", ha='center', va='bottom', color='#e2e2e9')
+plt.title('Faturamento Acumulado por Ano', fontsize=12, fontweight='bold', pad=15)
+plt.grid(axis='y')
+ax = plt.gca()
+ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f"R$ {x:,.0f}"))
+plt.tight_layout()
+plt.savefig('vendas_por_ano.png', facecolor='#0f0f1a', dpi=150)
+plt.show()
+
+# Exibir os dados da evolução anual no console
+print("\n📋 DADOS CONSOLIDADOS POR ANO:")
+print(vendas_ano.to_string(index=False))
+```
+
+---
+
+## ── CÉLULA 5: Participação no Faturamento por Restaurante ───────────────────
+**Objetivo:** Calcular a receita acumulada por estabelecimento (Vendedor), plotar o ranking, salvar a imagem PNG e exibir a tabela de vendas abaixo.
+
+```python
+# ── CÉLULA 5: Participação no Faturamento por Restaurante ───────────────────
+# Preparar vendas_vend agrupando por 'Vendedor'
+vendas_vend = df.groupby('Vendedor').agg(total=('Valor', 'sum'), pedidos=('Valor', 'count')).reset_index()
+vendas_vend.columns = ['vendedor', 'total', 'pedidos']
+vendas_vend['ticket'] = vendas_vend['total'] / vendas_vend['pedidos']
+vendas_vend = vendas_vend.sort_values('total', ascending=False)
+
+plt.figure(figsize=(10, 5))
+bars = plt.bar(vendas_vend['vendedor'], vendas_vend['total'], color=PALETTE[:len(vendas_vend)], edgecolor='#30304a')
+
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2., height + (height*0.01),
+             f"R$ {height:,.2f}", ha='center', va='bottom', fontsize=9, color='#e2e2e9')
+
+plt.title('Faturamento Total por Restaurante', fontsize=14, fontweight='bold', pad=20)
+plt.ylabel('Faturamento (R$)', fontsize=12)
+plt.grid(axis='y')
+ax = plt.gca()
+ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f"R$ {x:,.0f}"))
+plt.tight_layout()
+plt.savefig('vendas_por_vendedor.png', facecolor='#0f0f1a', dpi=150)
+plt.show()
+
+# Exibir tabela com dados do vendedor no console
+print("\n📋 PARTICIPAÇÃO POR RESTAURANTE:")
+print(vendas_vend.to_string(index=False))
+```
+
+---
+
+## ── CÉLULA 6: Faturamento e Entregas por Região (Bairro) ────────────────────
+**Objetivo:** Montar gráficos lado a lado de Receita por Região e Evolução Anual por Região, salvar o arquivo PNG e exibir a tabela de dados formatada embaixo.
+
+```python
+# ── CÉLULA 6: Faturamento e Entregas por Região (Bairro) ────────────────────
+# Preparar vendas_reg agrupando por 'Região'
+vendas_reg = df.groupby('Região').agg(total=('Valor', 'sum'), pedidos=('Valor', 'count')).reset_index()
+vendas_reg.columns = ['regiao', 'total', 'pedidos']
+vendas_reg['ticket'] = vendas_reg['total'] / vendas_reg['pedidos']
+vendas_reg = vendas_reg.sort_values('total', ascending=False)
+
+# Preparar dados de evolução anual por região
+reg_ano = df.groupby(['Região', 'Ano'])['Valor'].sum().reset_index()
+reg_ano.columns = ['regiao', 'ano', 'valor']
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6), facecolor='#0f0f1a')
+fig.suptitle('VENDAS POR REGIÃO', color='white', fontsize=14, fontweight='bold', y=0.98)
+
+# 1. Gráfico da Esquerda: Receita por Região (Barras)
+colors_bar = PALETTE[:len(vendas_reg)]
+bars = ax1.bar(vendas_reg['regiao'], vendas_reg['total'], color=colors_bar, edgecolor='#30304a')
+for bar in bars:
+    height = bar.get_height()
+    ax1.text(bar.get_x() + bar.get_width()/2., height + (height*0.01),
+             f"R$ {height:,.2f}", ha='center', va='bottom', fontsize=9, color='#e2e2e9')
+ax1.set_title('Receita por Região (R$)', fontsize=12, fontweight='bold')
+ax1.set_ylabel('Faturamento (R$)')
+ax1.grid(axis='y')
+ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f"R$ {x:,.0f}"))
+
+# 2. Gráfico da Direita: Evolução Anual por Região (Linhas)
+for idx, reg in enumerate(reg_ano['regiao'].unique()):
+    sub = reg_ano[reg_ano['regiao'] == reg]
+    ax2.plot(sub['ano'].astype(str), sub['valor'], marker='o', label=reg, color=PALETTE[idx % len(PALETTE)], linewidth=2.5, markersize=8)
+ax2.set_title('Evolução Anual por Região (R$)', fontsize=12, fontweight='bold')
+ax2.set_ylabel('Faturamento (R$)')
+ax2.grid(True)
+ax2.legend(facecolor='#1a1a2e', edgecolor='#30304a')
+ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f"R$ {x:,.0f}"))
+
+plt.tight_layout()
+plt.savefig('vendas_por_regiao.png', facecolor='#0f0f1a', dpi=150)
+plt.show()
+
+# Imprimir tabela resumo formatada abaixo dos gráficos
+print("\n" + vendas_reg.to_string(index=False))
+```
+
+---
+
+## ── CÉLULA 7: Distribuição de Vendas por Formas de Pagamento ──────────────
+**Objetivo:** Analisar a participação das formas de pagamento (FormaPgto), desenhar o gráfico de pizza, salvar a imagem PNG e tabular os dados abaixo.
+
+```python
+# ── CÉLULA 7: Distribuição de Vendas por Formas de Pagamento ──────────────
+# Preparar vendas_pgto agrupando por 'FormaPgto'
+vendas_pgto = df.groupby('FormaPgto').agg(total=('Valor', 'sum'), pedidos=('Valor', 'count')).reset_index()
+vendas_pgto.columns = ['forma_pagamento', 'total', 'pedidos']
+vendas_pgto['ticket'] = vendas_pgto['total'] / vendas_pgto['pedidos']
+vendas_pgto = vendas_pgto.sort_values('total', ascending=False)
+
+plt.figure(figsize=(8, 8))
+plt.pie(vendas_pgto['total'], labels=vendas_pgto['forma_pagamento'], autopct='%1.1f%%',
+        colors=PALETTE[2:2+len(vendas_pgto)], startangle=140, textprops={'color': '#ffffff', 'fontsize': 12},
+        wedgeprops={'edgecolor': '#1a1a2e', 'linewidth': 2})
+
+plt.title('Faturamento por Forma de Pagamento', fontsize=14, fontweight='bold', pad=20)
+plt.tight_layout()
+plt.savefig('vendas_por_pagamento.png', facecolor='#0f0f1a', dpi=150)
+plt.show()
+
+# Exibir dados das formas de pagamento no console
+print("\n📋 FATURAMENTO POR FORMA DE PAGAMENTO:")
+print(vendas_pgto.to_string(index=False))
+```
+
+---
+
+## ── CÉLULA 8: Ranking de Faturamento por Produto ─────────────────────────
+**Objetivo:** Identificar quais são os produtos mais lucrativos, plotar o gráfico de barras horizontais, exportar PNG e imprimir a tabela de dados.
+
+```python
+# ── CÉLULA 8: Ranking de Faturamento por Produto ─────────────────────────
+# Preparar vendas_prod agrupando por 'Produto'
+vendas_prod = df.groupby('Produto').agg(total=('Valor', 'sum'), pedidos=('Valor', 'count')).reset_index()
+vendas_prod.columns = ['produto', 'total', 'pedidos']
+vendas_prod['ticket'] = vendas_prod['total'] / vendas_prod['pedidos']
+vendas_prod = vendas_prod.sort_values('total', ascending=False)
+
+top_10_prod = vendas_prod.head(10)
+
+plt.figure(figsize=(12, 6))
+bars = plt.barh(top_10_prod['produto'][::-1], top_10_prod['total'][::-1], color='#10b981', edgecolor='#30304a')
+
+for bar in bars:
+    width = bar.get_width()
+    plt.text(width + (width*0.01), bar.get_y() + bar.get_height()/2.,
+             f"R$ {width:,.2f}", ha='left', va='center', fontsize=9, color='#e2e2e9')
+
+plt.title('Top 10 Produtos Líderes de Faturamento', fontsize=14, fontweight='bold', pad=20)
+plt.xlabel('Faturamento Acumulado (R$)')
+plt.grid(axis='x')
+ax = plt.gca()
+ax.xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f"R$ {x:,.0f}"))
+plt.tight_layout()
+plt.savefig('vendas_por_produto.png', facecolor='#0f0f1a', dpi=150)
+plt.show()
+
+# Exibir os top 10 produtos no console
+print("\n📋 DADOS DOS TOP 10 PRODUTOS MAIS VENDIDOS:")
+print(top_10_prod.to_string(index=False))
+```
+
+---
+
+## ── CÉLULA 9: Sazonalidade (Mapa de Calor de Vendas) ────────────────────────
+**Objetivo:** Montar a matriz de faturamento por Restaurante x Mês em formato de mapa de calor (Seaborn Heatmap) para avaliar a sazonalidade e exibir a tabela de correlação correspondente.
+
+```python
+# ── CÉLULA 9: Sazonalidade (Mapa de Calor de Vendas) ────────────────────────
+# Criar a pivot table consolidando Restaurante (Vendedor) x Mês do Ano
+pivot_df = df.pivot_table(index='Vendedor', columns='Mês', values='Valor', aggfunc='sum')
+
+# Garantir a ordenação cronológica correta dos meses presentes no dataframe
+meses_ordem = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+meses_existentes = [m for m in meses_ordem if m in pivot_df.columns]
+pivot_df = pivot_df[meses_existentes]
+
+plt.figure(figsize=(12, 6))
+sns.heatmap(pivot_df, annot=True, fmt=".0f", cmap="Purples", 
+            cbar_kws={'label': 'Faturamento Acumulado (R$)'}, linewidths=.5, linecolor='#1a1a2e')
+
+plt.title('Sazonalidade: Mapa de Calor de Vendas por Restaurante', fontsize=14, fontweight='bold', pad=20)
+plt.xlabel('Mês do Ano')
+plt.ylabel('Restaurante')
+plt.xticks(rotation=0)
+plt.tight_layout()
+plt.savefig('vendas_sazonalidade.png', facecolor='#0f0f1a', dpi=150)
+plt.show()
+
+# Exibir os dados da pivot table no console
+print("\n📋 MATRIZ DE SAZONALIDADE (RESTAURANTE X MÊS):")
+print(pivot_df.fillna(0).round(2))
+```
+
+---
+
+## ── CÉLULA 10: Ranking de Fidelidade de Clientes (Clientes VIP) ───────────────
+**Objetivo:** Obter a contagem de faturamento por usuário único (Cliente), plotar as barras verticais e exibir a tabela de clientes abaixo do gráfico.
+
+```python
+# ── CÉLULA 10: Ranking de Fidelidade de Clientes (Clientes VIP) ───────────────
+top_clientes = df.groupby('Cliente').agg({'Valor': 'sum', 'Data': 'count'}).reset_index()
+top_clientes.columns = ['cliente', 'Gasto Total', 'Quantidade Itens']
+top_clientes = top_clientes.sort_values('Gasto Total', ascending=False).head(10).reset_index(drop=True)
+
+# Gráfico de barras dos Clientes VIP
+plt.figure(figsize=(10, 5))
+bars = plt.bar(top_clientes['cliente'], top_clientes['Gasto Total'], color='#ec4899', edgecolor='#30304a')
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2., height + 10, f"R$ {height:.0f}", ha='center', va='bottom', color='#e2e2e9', fontsize=9)
+
+plt.title('Fidelidade: Top 10 Clientes VIP (Maior Gasto)', fontsize=14, fontweight='bold', pad=15)
+plt.xticks(rotation=45)
+plt.grid(axis='y')
+ax = plt.gca()
+ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f"R$ {x:,.0f}"))
+plt.tight_layout()
+plt.savefig('vendas_por_cliente.png', facecolor='#0f0f1a', dpi=150)
+plt.show()
+
+# Imprimir tabela no console abaixo do gráfico
+print("\n📋 RANKING DOS TOP 10 CLIENTES VIP:")
+print(top_clientes.to_string(index=False))
+```
+
+---
+
+## ── CÉLULA 11: Painel Executivo Interativo (Plotly Subplots) ─────────────────────
+**Objetivo:** Montar uma visualização integrada e interativa cruzando as 6 principais dimensões do faturamento in grade 2x3 e salvando o painel em formato HTML.
+
+```python
+# ── CÉLULA 11: Painel Executivo Interativo (Plotly Subplots) ─────────────────────
+fig = make_subplots(
+    rows=2, cols=3,
+    subplot_titles=[
+        'Receita por Mês', 'Receita por Vendedor',
+        'Receita por Região', 'Receita por Produto',
+        'Forma de Pagamento', 'Evolução Anual por Vendedor'
+    ],
+    specs=[
+        [{'type': 'bar'}, {'type': 'bar'}, {'type': 'pie'}],
+        [{'type': 'bar'}, {'type': 'pie'}, {'type': 'scatter'}]
+    ]
+)
+
+# 1. Receita por mês
+fig.add_trace(go.Bar(
+    x=vendas_mes['mes'].astype(str), y=vendas_mes['total'],
+    marker_color=ACCENT, name='Mês', showlegend=False,
+    text=vendas_mes['total'].apply(lambda v: f'R${v:,.0f}'), textposition='outside'
+), row=1, col=1)
+
+# 2. Receita por vendedor (restaurantes)
+fig.add_trace(go.Bar(
+    x=vendas_vend['vendedor'], y=vendas_vend['total'],
+    marker_color=PALETTE[1], name='Vendedor', showlegend=False,
+    text=vendas_vend['total'].apply(lambda v: f'R${v:,.0f}'), textposition='outside'
+), row=1, col=2)
+
+# 3. Pizza região (bairros)
+fig.add_trace(go.Pie(
+    labels=vendas_reg['regiao'], values=vendas_reg['total'],
+    marker_colors=PALETTE, name='Região', hole=0.35, showlegend=True
+), row=1, col=3)
+
+# 4. Receita por produto (Top 7 produtos mais vendidos)
+vendas_prod_top = vendas_prod.head(7)
+fig.add_trace(go.Bar(
+    x=vendas_prod_top['produto'], y=vendas_prod_top['total'],
+    marker_color=PALETTE[2], name='Produto', showlegend=False,
+    text=vendas_prod_top['total'].apply(lambda v: f'R${v:,.0f}'), textposition='outside'
+), row=2, col=1)
+
+# 5. Pizza pagamento
+fig.add_trace(go.Pie(
+    labels=vendas_pgto['forma_pagamento'], values=vendas_pgto['total'],
+    marker_colors=PALETTE[3:], name='Pagamento', hole=0.35, showlegend=True
+), row=2, col=2)
+
+# 6. Linhas — faturamento anual por empresa
+vend_ano = df.groupby(['Vendedor', 'Ano'])['Valor'].sum().reset_index()
+vend_ano.columns = ['vendedor', 'ano', 'valor']
+
+for i, vend in enumerate(vend_ano['vendedor'].unique()):
+    sub = vend_ano[vend_ano['vendedor'] == vend]
+    fig.add_trace(go.Scatter(
+        x=sub['ano'], y=sub['valor'], name=vend,
+        mode='lines+markers', line=dict(color=PALETTE[i % len(PALETTE)], width=2.5),
+        marker=dict(size=8)
+    ), row=2, col=3)
+
+fig.update_layout(
+    title_text='📊  DASHBOARD INTERATIVO — MONITORAMENTO COMANDA+',
+    title_font=dict(size=20, color='#e0e0ff'),
+    plot_bgcolor='#1a1a2e',
+    paper_bgcolor='#0f0f1a',
+    font=dict(color='#e0e0ff', family='monospace'),
+    height=750,
+    legend=dict(bgcolor='#1a1a2e', bordercolor='#2e2e4e', borderwidth=1)
+)
+fig.update_xaxes(gridcolor='#2e2e4e', showgrid=True)
+fig.update_yaxes(gridcolor='#2e2e4e', showgrid=True)
+
+# Salvar no arquivo HTML
+fig.write_html('dashboard_vendas.html')
+fig.show()
+print("✅ Dashboard salvo com sucesso em: dashboard_vendas.html")
+```
+
+---
+
+## ── CÉLULA 12: Tabela Resumo Final ───────────────────────────────────────────
+**Objetivo:** Consolidar todas as tabelas estatísticas calculadas nos blocos anteriores de forma limpa e imprimir o sumário completo das imagens salvas.
+
+```python
+# ── CÉLULA 12: Tabela Resumo Final ───────────────────────────────────────────
+print("\n" + "="*60)
+print("        📋  TABELA RESUMO — TODAS AS DIMENSÕES")
+print("="*60)
+
+dimensoes = {
+    'Por Mês':              vendas_mes.rename(columns={'mes': 'dimensão', 'total': 'receita', 'pedidos': 'qtd_pedidos', 'ticket': 'ticket_medio'}),
+    'Por Vendedor':         vendas_vend.rename(columns={'vendedor': 'dimensão', 'total': 'receita', 'pedidos': 'qtd_pedidos', 'ticket': 'ticket_medio'}),
+    'Por Ano':              vendas_ano.rename(columns={'ano': 'dimensão', 'total': 'receita', 'pedidos': 'qtd_pedidos', 'ticket': 'ticket_medio'}),
+    'Por Região':           vendas_reg.rename(columns={'regiao': 'dimensão', 'total': 'receita', 'pedidos': 'qtd_pedidos', 'ticket': 'ticket_medio'}),
+    'Por Produto':          vendas_prod.rename(columns={'produto': 'dimensão', 'total': 'receita', 'pedidos': 'qtd_pedidos', 'ticket': 'ticket_medio'}),
+    'Por Forma Pagamento':  vendas_pgto.rename(columns={'forma_pagamento': 'dimensão', 'total': 'receita', 'pedidos': 'qtd_pedidos', 'ticket': 'ticket_medio'}),
+}
+
+for titulo, tabela in dimensoes.items():
+    print(f"\n{'─'*60}")
+    print(f"  {titulo}")
+    print('─'*60)
+    tabela_copia = tabela.copy()
+    tabela_copia['receita']      = tabela_copia['receita'].apply(lambda v: f'R$ {v:,.2f}')
+    tabela_copia['ticket_medio'] = tabela_copia['ticket_medio'].apply(lambda v: f'R$ {v:,.2f}')
+    print(tabela_copia.to_string(index=False))
+
+print("\n✅ Análise completa! Arquivos gerados:")
+print("   📸 vendas_por_mes.png")
+print("   📸 vendas_por_vendedor.png")
+print("   📸 vendas_por_ano.png")
+print("   📸 vendas_por_cliente.png")
+print("   📸 vendas_por_regiao.png")
+print("   📸 vendas_por_produto.png")
+print("   📸 vendas_por_pagamento.png")
+print("   🌐 dashboard_vendas.html")
+```

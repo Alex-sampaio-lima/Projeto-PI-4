@@ -8,7 +8,9 @@
     "dev": "nodemon server.js",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "exportar-dados": "node scripts/export-dashboard.js"
+    "exportar-dados": "node scripts/export-dashboard.js",
+    "db:seed-large": "node scripts/seed-large.js",
+    "db:export-colab": "node scripts/exportar-colab.js"
   },
   "dependencies": {
     "@faker-js/faker": "^10.4.0",

@@ -1,0 +1,185 @@
+{
+  "resumo": {
+    "total_pedidos": 200,
+    "receita_total": 15955,
+    "ticket_medio": 79.775
+  },
+  "receita_por_mes": [
+    {
+      "mes": "2025-01",
+      "receita": 862.1
+    },
+    {
+      "mes": "2025-02",
+      "receita": 572.6
+    },
+    {
+      "mes": "2025-03",
+      "receita": 599.7
+    },
+    {
+      "mes": "2025-04",
+      "receita": 590.1
+    },
+    {
+      "mes": "2025-05",
+      "receita": 776.8
+    },
+    {
+      "mes": "2025-06",
+      "receita": 480.8
+    },
+    {
+      "mes": "2025-07",
+      "receita": 589.8
+    },
+    {
+      "mes": "2025-08",
+      "receita": 632.2
+    },
+    {
+      "mes": "2025-09",
+      "receita": 656.1
+    },
+    {
+      "mes": "2025-10",
+      "receita": 611.7
+    },
+    {
+      "mes": "2025-11",
+      "receita": 611.6
+    },
+    {
+      "mes": "2025-12",
+      "receita": 807.9
+    },
+    {
+      "mes": "2026-01",
+      "receita": 685.2
+    },
+    {
+      "mes": "2026-02",
+      "receita": 560.4
+    },
+    {
+      "mes": "2026-03",
+      "receita": 775.1
+    },
+    {
+      "mes": "2026-04",
+      "receita": 927.1
+    },
+    {
+      "mes": "2026-05",
+      "receita": 772.6
+    },
+    {
+      "mes": "2026-06",
+      "receita": 837.1
+    },
+    {
+      "mes": "2026-07",
+      "receita": 269.5
+    },
+    {
+      "mes": "2026-08",
+      "receita": 739.6
+    },
+    {
+      "mes": "2026-09",
+      "receita": 553.6
+    },
+    {
+      "mes": "2026-10",
+      "receita": 690.6
+    },
+    {
+      "mes": "2026-11",
+      "receita": 883.6
+    },
+    {
+      "mes": "2026-12",
+      "receita": 469.2
+    }
+  ],
+  "receita_por_forma_pagamento": [
+    {
+      "forma_pagamento": "boleto",
+      "receita": 4149.2
+    },
+    {
+      "forma_pagamento": "credito",
+      "receita": 4251.6
+    },
+    {
+      "forma_pagamento": "debito",
+      "receita": 3441.8
+    },
+    {
+      "forma_pagamento": "pix",
+      "receita": 4112.4
+    }
+  ],
+  "produtos_mais_vendidos": [
+    {
+      "produto": "Bowl Frango Grelhado",
+      "quantidade": 60,
+      "receita": 1914
+    },
+    {
+      "produto": "Gelato 500ml",
+      "quantidade": 56,
+      "receita": 2520
+    },
+    {
+      "produto": "Coca-Cola 2L",
+      "quantidade": 49,
+      "receita": 588
+    },
+    {
+      "produto": "Picolé de Pistache",
+      "quantidade": 48,
+      "receita": 696
+    },
+    {
+      "produto": "Pizza Margherita",
+      "quantidade": 48,
+      "receita": 2059.2
+    },
+    {
+      "produto": "Vinho Tinto Chileno",
+      "quantidade": 45,
+      "receita": 2475
+    },
+    {
+      "produto": "Cerveja Heineken 330ml",
+      "quantidade": 44,
+      "receita": 391.6
+    },
+    {
+      "produto": "Pizza Pepperoni",
+      "quantidade": 41,
+      "receita": 1963.8999999999999
+    },
+    {
+      "produto": "Combo Burguer Bacon",
+      "quantidade": 41,
+      "receita": 1225.8999999999999
+    },
+    {
+      "produto": "Big Beef Flavor",
+      "quantidade": 40,
+      "receita": 1396
+    }
+  ],
+  "pedidos_por_status": [
+    {
+      "status": "cancelado",
+      "quantidade": 53
+    },
+    {
+      "status": "concluido",
+      "quantidade": 147
+    }
+  ]
+}

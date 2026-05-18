@@ -59,7 +59,7 @@ async function exportDashboardData() {
     });
 
     // Salvar o JSON
-    const outputPath = path.resolve(__dirname, '../dashboard-comanda-plus.json');
+    const outputPath = path.resolve(__dirname, '../dashboard-estatisticas.json');
     fs.writeFileSync(outputPath, JSON.stringify(dashboardData, null, 2));
     console.log(`✅ Dados exportados com sucesso para: ${outputPath}`);
 
