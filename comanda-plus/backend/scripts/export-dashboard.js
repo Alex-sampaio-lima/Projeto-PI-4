@@ -1,41 +1,70 @@
-// scripts/export-dashboard.js
-const fs = require('fs');
+// backend/scripts/export-dashboard.js
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const http = require('http');
+const fs = require('fs');
 
-const PORT = process.env.PORT || 3000;
-const URL = `http://localhost:${PORT}/api/dashboard/export`;
+// Caminho para o banco de dados SQLite
+const dbPath = path.resolve(__dirname, '../database.sqlite');
+const db = new sqlite3.Database(dbPath);
 
-console.log(`⏳ Gerando estatísticas do Dashboard a partir de ${URL}...`);
+// Função principal para exportar os dados
+async function exportDashboardData() {
+    const dashboardData = {};
 
-http.get(URL, (res) => {
-  let data = '';
+    // 1. Resumo Geral
+    dashboardData.resumo = await new Promise((resolve, reject) => {
+        db.get(`SELECT COUNT(id) as total_pedidos, SUM(total) as receita_total, AVG(total) as ticket_medio FROM orders`, (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+        });
+    });
 
-  res.on('data', (chunk) => {
-    data += chunk;
-  });
+    // 2. Receita por Mês
+    dashboardData.receita_por_mes = await new Promise((resolve, reject) => {
+        db.all(`SELECT strftime('%Y-%m', created_at) as mes, SUM(total) as receita FROM orders GROUP BY mes ORDER BY mes`, (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+        });
+    });
 
-  res.on('end', () => {
-    if (res.statusCode === 200) {
-      try {
-        const jsonParsed = JSON.parse(data);
-        
-        // Define o caminho de saída (na pasta raiz do backend)
-        const outputPath = path.join(__dirname, '..', 'dashboard-estatisticas.json');
-        
-        // Salva o arquivo formatado com indentação (2 espaços)
-        fs.writeFileSync(outputPath, JSON.stringify(jsonParsed.dados, null, 2), 'utf-8');
-        
-        console.log(`✅ Sucesso! Os dados foram exportados para: ${outputPath}`);
-      } catch (e) {
-        console.error('❌ Erro ao analisar a resposta JSON:', e.message);
-      }
-    } else {
-      console.error(`❌ Falha ao buscar dados. Status Code: ${res.statusCode}`);
-      console.error(`Verifique se o backend está rodando ("npm run dev").`);
-    }
-  });
-}).on('error', (err) => {
-  console.error('❌ Erro ao conectar ao servidor:', err.message);
-  console.error('Verifique se o backend está rodando ("npm run dev").');
-});
+    // 3. Receita por Forma de Pagamento
+    dashboardData.receita_por_forma_pagamento = await new Promise((resolve, reject) => {
+        db.all(`SELECT forma_pagamento, SUM(total) as receita FROM orders GROUP BY forma_pagamento`, (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+        });
+    });
+
+    // 4. Produtos Mais Vendidos
+    dashboardData.produtos_mais_vendidos = await new Promise((resolve, reject) => {
+        db.all(`
+            SELECT p.nome as produto, SUM(oi.quantidade) as quantidade, SUM(oi.quantidade * oi.preco_unitario) as receita
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            GROUP BY p.id
+            ORDER BY quantidade DESC
+            LIMIT 10
+        `, (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+        });
+    });
+
+    // 5. Pedidos por Status
+    dashboardData.pedidos_por_status = await new Promise((resolve, reject) => {
+        db.all(`SELECT status, COUNT(id) as quantidade FROM orders GROUP BY status`, (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+        });
+    });
+
+    // Salvar o JSON
+    const outputPath = path.resolve(__dirname, '../dashboard-comanda-plus.json');
+    fs.writeFileSync(outputPath, JSON.stringify(dashboardData, null, 2));
+    console.log(`✅ Dados exportados com sucesso para: ${outputPath}`);
+
+    db.close();
+}
+
+exportDashboardData().catch(console.error);
+

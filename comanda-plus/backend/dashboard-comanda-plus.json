@@ -1,0 +1,88 @@
+{
+  "resumo": {
+    "total_pedidos": 40,
+    "receita_total": 9859,
+    "ticket_medio": 246.475
+  },
+  "receita_por_mes": [
+    {
+      "mes": "2026-01",
+      "receita": 2663
+    },
+    {
+      "mes": "2026-02",
+      "receita": 1509.6
+    },
+    {
+      "mes": "2026-03",
+      "receita": 2166.2
+    },
+    {
+      "mes": "2026-04",
+      "receita": 3520.2
+    }
+  ],
+  "receita_por_forma_pagamento": [
+    {
+      "forma_pagamento": "boleto",
+      "receita": 3071.5
+    },
+    {
+      "forma_pagamento": "credito",
+      "receita": 2577.2999999999997
+    },
+    {
+      "forma_pagamento": "debito",
+      "receita": 2714.2
+    },
+    {
+      "forma_pagamento": "pix",
+      "receita": 1496
+    }
+  ],
+  "produtos_mais_vendidos": [
+    {
+      "produto": "Bowl Frango Grelhado",
+      "quantidade": 119,
+      "receita": 3796.1
+    },
+    {
+      "produto": "Combo Burguer Bacon",
+      "quantidade": 49,
+      "receita": 1465.1
+    },
+    {
+      "produto": "Pizza Margherita",
+      "quantidade": 44,
+      "receita": 1887.6
+    },
+    {
+      "produto": "Pizza Pepperoni",
+      "quantidade": 39,
+      "receita": 1868.1
+    },
+    {
+      "produto": "Big Beef Flavor",
+      "quantidade": 19,
+      "receita": 663.0999999999999
+    }
+  ],
+  "pedidos_por_status": [
+    {
+      "status": "cancelado",
+      "quantidade": 11
+    },
+    {
+      "status": "confirmado",
+      "quantidade": 9
+    },
+    {
+      "status": "entregue",
+      "quantidade": 8
+    },
+    {
+      "status": "pendente",
+      "quantidade": 12
+    }
+  ]
+}
