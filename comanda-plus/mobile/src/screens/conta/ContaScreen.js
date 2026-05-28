@@ -81,7 +81,7 @@ function ContaScreen() {
           <ItemMenu
             icone="📋"
             titulo="Meus Pedidos"
-            onPress={() => Alert.alert('Em breve', 'Histórico de pedidos em desenvolvimento.')}
+            onPress={() => navigation.navigate('MeusPedidos')}
           />
         </View>
       </View>
