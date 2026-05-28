@@ -35,7 +35,6 @@ jobs:
       - name: 📦 Instalar dependências
         run: npm ci --legacy-peer-deps
 
-
       - name: 🩺 Verificar saúde do projeto Expo
         run: npx expo-doctor
         continue-on-error: true

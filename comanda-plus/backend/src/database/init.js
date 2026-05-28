@@ -93,6 +93,7 @@ async function criarTabelas() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       product_id INTEGER NOT NULL,
       quantidade INTEGER NOT NULL DEFAULT 1,
+      observacao TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (product_id) REFERENCES products(id)
     )
@@ -120,6 +121,7 @@ async function criarTabelas() {
       product_id INTEGER NOT NULL,
       quantidade INTEGER NOT NULL,
       preco_unitario REAL NOT NULL,
+      observacao TEXT,
       FOREIGN KEY (order_id) REFERENCES orders(id),
       FOREIGN KEY (product_id) REFERENCES products(id)
     )
@@ -134,6 +136,12 @@ async function criarTabelas() {
   } catch (e) {}
   try {
     await run('ALTER TABLE orders ADD COLUMN forma_pagamento TEXT');
+  } catch (e) {}
+  try {
+    await run('ALTER TABLE cart ADD COLUMN observacao TEXT');
+  } catch (e) {}
+  try {
+    await run('ALTER TABLE order_items ADD COLUMN observacao TEXT');
   } catch (e) {}
 
   // Tabela de usuários

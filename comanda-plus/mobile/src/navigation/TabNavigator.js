@@ -4,6 +4,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import RestaurantesScreen from '../screens/home/RestaurantesScreen';
 import ProdutosScreen from '../screens/produtos/ProdutosScreen';
 import CarrinhoScreen from '../screens/carrinho/CarrinhoScreen';
@@ -13,12 +14,12 @@ import theme from '../styles/theme';
 
 const Tab = createBottomTabNavigator();
 
-// Ícones de cada aba
+// Ícones de cada aba usando Ionicons
 const ICONES = {
-  Inicio: { normal: '🏠', focado: '🏠' },
-  Produtos: { normal: '🍽️', focado: '🍽️' },
-  Carrinho: { normal: '🛒', focado: '🛒' },
-  Conta: { normal: '👤', focado: '👤' },
+  Inicio: { normal: 'home-outline', focado: 'home' },
+  Produtos: { normal: 'fast-food-outline', focado: 'fast-food' },
+  Carrinho: { normal: 'cart-outline', focado: 'cart' },
+  Conta: { normal: 'person-outline', focado: 'person' },
 };
 
 function TabNavigator() {
@@ -39,8 +40,8 @@ function TabNavigator() {
           // Badge no carrinho
           if (route.name === 'Carrinho' && quantidadeTotalItens > 0) {
             return (
-              <View>
-                <Text style={{ fontSize: 22 }}>{icone}</Text>
+              <View style={{ width: 24, height: 24, justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name={icone} size={24} color={color} />
                 <View style={estilos.badge}>
                   <Text style={estilos.badgeTexto}>{quantidadeTotalItens}</Text>
                 </View>
@@ -48,7 +49,7 @@ function TabNavigator() {
             );
           }
 
-          return <Text style={{ fontSize: 22 }}>{icone}</Text>;
+          return <Ionicons name={icone} size={24} color={color} />;
         },
       })}
     >

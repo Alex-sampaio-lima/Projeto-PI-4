@@ -17,10 +17,10 @@ const cartController = {
 
   async addItem(req, res, next) {
     try {
-      const { product_id, quantidade } = req.body;
+      const { product_id, quantidade, observacao } = req.body;
       const produto = await productModel.getById(product_id);
       if (!produto) return res.status(404).json({ sucesso: false, mensagem: 'Produto não encontrado' });
-      const item = await cartModel.addItem(product_id, quantidade || 1);
+      const item = await cartModel.addItem(product_id, quantidade || 1, observacao || '');
       res.status(201).json({ sucesso: true, dados: item });
     } catch (error) {
       next(error);

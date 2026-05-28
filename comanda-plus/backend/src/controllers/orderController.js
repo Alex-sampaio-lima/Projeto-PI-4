@@ -38,6 +38,7 @@ const orderController = {
         product_id: item.product_id,
         quantidade: item.quantidade,
         preco_unitario: item.preco,
+        observacao: item.observacao,
       }));
 
       // Pega o company_id do primeiro item (pela regra de uma única loja)

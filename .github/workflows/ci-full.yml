@@ -2,9 +2,9 @@ name: 🚀 Pipeline Completa — CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   # ============================================================
@@ -69,7 +69,6 @@ jobs:
 
       - name: 📦 Instalar dependências
         run: npm ci --legacy-peer-deps
-
 
       - name: 🩺 Verificar saúde do projeto Expo
         run: npx expo-doctor

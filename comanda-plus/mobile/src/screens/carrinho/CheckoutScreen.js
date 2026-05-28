@@ -7,6 +7,7 @@ import {
   TouchableOpacity, Alert, ActivityIndicator, Platform
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import Botao from '../../components/ui/Botao';
 import { useCart } from '../../hooks/useCart';
 import { enderecosService, pedidosService } from '../../services/endpoints';
@@ -16,8 +17,8 @@ import theme from '../../styles/theme';
 import * as WebBrowser from 'expo-web-browser';
 
 const FORMAS_PAGAMENTO = [
-  { id: 'mercadopago', nome: 'Pagar com Mercado Pago', icone: '💳' },
-  { id: 'dinheiro', nome: 'Dinheiro na Entrega', icone: '💵' },
+  { id: 'mercadopago', nome: 'Pagar com Mercado Pago', icone: 'card-outline' },
+  { id: 'dinheiro', nome: 'Dinheiro na Entrega', icone: 'cash-outline' },
 ];
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -101,8 +102,8 @@ function CheckoutScreen() {
     <View style={estilos.tela}>
       {/* Header */}
       <View style={[estilos.header, { paddingTop: Math.max(insets.top + 10, theme.espacamento.xl) }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={estilos.botaoVoltar}>
-          <Text style={estilos.setaVoltar}>←</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={estilos.botaoVoltar} activeOpacity={0.8}>
+          <Ionicons name="arrow-back" size={24} color={theme.cores.branco} />
         </TouchableOpacity>
         <Text style={estilos.headerTitulo}>Checkout</Text>
         <View style={{ width: 40 }} />
@@ -111,7 +112,9 @@ function CheckoutScreen() {
       <View style={{ flex: 1 }}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={estilos.scroll}>
           {/* Seção: Endereço */}
-          <Text style={estilos.secaoTitulo}>📍 Endereço de Entrega</Text>
+          <Text style={estilos.secaoTitulo}>
+            <Ionicons name="location-outline" size={18} color={theme.cores.primaria} /> Endereço de Entrega
+          </Text>
           {carregandoEnderecos ? (
             <ActivityIndicator color={theme.cores.primaria} />
           ) : enderecos.length === 0 ? (
@@ -140,32 +143,42 @@ function CheckoutScreen() {
           )}
 
           {/* Seção: Pagamento */}
-          <Text style={[estilos.secaoTitulo, { marginTop: theme.espacamento.lg }]}>💳 Forma de Pagamento</Text>
+          <Text style={[estilos.secaoTitulo, { marginTop: theme.espacamento.lg }]}>
+            <Ionicons name="card-outline" size={18} color={theme.cores.primaria} /> Forma de Pagamento
+          </Text>
           {FORMAS_PAGAMENTO.map((pag) => (
             <TouchableOpacity
               key={pag.id}
               style={[estilos.pagamentoCard, pagamentoSelecionado?.id === pag.id && estilos.selecionado]}
               onPress={() => setPagamentoSelecionado(pag)}
+              activeOpacity={0.8}
             >
               <View style={estilos.radioOuter}>
                 {pagamentoSelecionado?.id === pag.id && <View style={estilos.radioInner} />}
               </View>
-              <Text style={estilos.pagamentoIcone}>{pag.icone}</Text>
+              <Ionicons name={pag.icone} size={22} color={theme.cores.primaria} style={{ marginRight: 10 }} />
               <Text style={estilos.pagamentoNome}>{pag.nome}</Text>
             </TouchableOpacity>
           ))}
 
           {/* Seção: Resumo */}
-          <Text style={[estilos.secaoTitulo, { marginTop: theme.espacamento.lg }]}>🧾 Resumo do Pedido</Text>
+          <Text style={[estilos.secaoTitulo, { marginTop: theme.espacamento.lg }]}>
+            <Ionicons name="receipt-outline" size={18} color={theme.cores.primaria} /> Resumo do Pedido
+          </Text>
           <View style={estilos.resumoCard}>
             {itensCarrinho.map((item) => (
-              <View key={item.id} style={estilos.resumoItem}>
-                <Text style={estilos.resumoNome}>{item.quantidade}x {item.nome}</Text>
-                <Text style={estilos.resumoPreco}>{formatarMoeda(item.preco * item.quantidade)}</Text>
+              <View key={item.id} style={estilos.resumoItemContainer}>
+                <View style={estilos.resumoItem}>
+                  <Text style={estilos.resumoNome}>{item.quantidade}x {item.nome}</Text>
+                  <Text style={estilos.resumoPreco}>{formatarMoeda(item.preco * item.quantidade)}</Text>
+                </View>
+                {item.observacao ? (
+                  <Text style={estilos.resumoObservacao}>💬 {item.observacao}</Text>
+                ) : null}
               </View>
             ))}
             <View style={estilos.divisor} />
-            <View style={estilos.resumoItem}>
+            <View style={estilos.resumoItemTotal}>
               <Text style={estilos.resumoTotal}>Total</Text>
               <Text style={estilos.resumoTotalValor}>{formatarMoeda(totalCarrinho)}</Text>
             </View>
@@ -196,7 +209,6 @@ const estilos = StyleSheet.create({
     paddingBottom: theme.espacamento.md,
   },
   botaoVoltar: { width: 40, alignItems: 'flex-start' },
-  setaVoltar: { color: theme.cores.branco, fontSize: 22, fontWeight: 'bold' },
   headerTitulo: { fontSize: theme.fonte.tamanho.xl, fontWeight: theme.fonte.peso.bold, color: theme.cores.branco },
   scroll: { padding: theme.espacamento.md, paddingBottom: theme.espacamento.xxl },
   secaoTitulo: { fontSize: theme.fonte.tamanho.md, fontWeight: theme.fonte.peso.bold, color: theme.cores.textoEscuro, marginBottom: theme.espacamento.sm },
@@ -223,10 +235,18 @@ const estilos = StyleSheet.create({
     borderRadius: theme.borda.raio.md, padding: theme.espacamento.md, alignItems: 'center',
   },
   textoAdicionarEndereco: { color: theme.cores.primaria, fontWeight: theme.fonte.peso.semibold },
-  pagamentoIcone: { fontSize: 20, marginRight: 10 },
   pagamentoNome: { fontSize: theme.fonte.tamanho.md, color: theme.cores.textoEscuro },
   resumoCard: { backgroundColor: theme.cores.branco, borderRadius: theme.borda.raio.md, padding: theme.espacamento.md, ...theme.sombra.leve },
-  resumoItem: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  resumoItemContainer: { marginBottom: theme.espacamento.sm },
+  resumoItem: { flexDirection: 'row', justifyContent: 'space-between' },
+  resumoObservacao: {
+    fontSize: theme.fonte.tamanho.xs,
+    fontStyle: 'italic',
+    color: theme.cores.cinzaTexto,
+    marginTop: 2,
+    marginLeft: 18,
+  },
+  resumoItemTotal: { flexDirection: 'row', justifyContent: 'space-between' },
   resumoNome: { fontSize: theme.fonte.tamanho.sm, color: theme.cores.textoEscuro, flex: 1 },
   resumoPreco: { fontSize: theme.fonte.tamanho.sm, color: theme.cores.textoEscuro, fontWeight: theme.fonte.peso.medio },
   divisor: { height: 1, backgroundColor: theme.cores.cinzaMedio, marginVertical: theme.espacamento.sm },

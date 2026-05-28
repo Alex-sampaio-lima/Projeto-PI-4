@@ -4,9 +4,10 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, StyleSheet,
-  TouchableOpacity, ActivityIndicator, FlatList
+  TouchableOpacity, ActivityIndicator, FlatList, TextInput, Dimensions
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { empresasService, categoriasService } from '../../services/endpoints';
 import CardRestaurante from '../../components/restaurante/CardRestaurante';
 import CategoriaItem from '../../components/produto/CategoriaItem';
@@ -14,11 +15,14 @@ import theme from '../../styles/theme';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+const { width: LARGURA_TELA } = Dimensions.get('window');
+
 function RestaurantesScreen() {
   const navigation = useNavigation();
   const [empresas, setEmpresas] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
+  const [busca, setBusca] = useState('');
   const [carregando, setCarregando] = useState(true);
   const insets = useSafeAreaInsets();
 
@@ -61,23 +65,89 @@ function RestaurantesScreen() {
     }
   }
 
+  // Filtra restaurantes com base na busca
+  const empresasFiltradas = empresas.filter((emp) =>
+    emp.nome.toLowerCase().includes(busca.toLowerCase()) ||
+    emp.categoria.toLowerCase().includes(busca.toLowerCase())
+  );
+
   return (
     <View style={estilos.tela}>
-      {/* Header Fixo */}
+      {/* Header Fixo com Busca integrada */}
       <View style={[estilos.header, { paddingTop: Math.max(insets.top + 10, theme.espacamento.xl) }]}>
-        <View>
-          <Text style={estilos.saudacao}>Olá! 👋</Text>
-          <Text style={estilos.pergunta}>Qual restaurante hoje?</Text>
+        <View style={estilos.headerTop}>
+          <View>
+            <Text style={estilos.saudacao}>Olá! 👋</Text>
+            <Text style={estilos.pergunta}>Qual restaurante hoje?</Text>
+          </View>
+          <TouchableOpacity
+            style={estilos.iconePerfil}
+            onPress={() => navigation.navigate('Conta')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="person-circle-outline" size={28} color={theme.cores.branco} />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={estilos.iconePerfil}
-          onPress={() => navigation.navigate('Conta')}
-        >
-          <Text style={estilos.emojiPerfil}>👤</Text>
-        </TouchableOpacity>
+
+        {/* Barra de Busca de Lojas */}
+        <View style={estilos.campoBusca}>
+          <Ionicons name="search-outline" size={18} color="rgba(255, 255, 255, 0.7)" style={{ marginRight: 6 }} />
+          <TextInput
+            style={estilos.inputBusca}
+            placeholder="Buscar restaurante ou categoria..."
+            placeholderTextColor="rgba(255, 255, 255, 0.6)"
+            value={busca}
+            onChangeText={setBusca}
+          />
+          {busca.length > 0 && (
+            <TouchableOpacity onPress={() => setBusca('')}>
+              <Ionicons name="close-circle" size={16} color="rgba(255, 255, 255, 0.7)" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Carrossel de Banners de Promoção */}
+        <View style={estilos.carrosselContainer}>
+          <ScrollView 
+            horizontal 
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={estilos.carrosselScroll}
+          >
+            {/* Card 1 */}
+            <TouchableOpacity style={[estilos.bannerCard, { backgroundColor: '#F4A62A' }]} activeOpacity={0.9}>
+              <View style={estilos.bannerTexto}>
+                <Text style={estilos.bannerTag}>🔥 PROMOÇÃO</Text>
+                <Text style={estilos.bannerTitulo}>Comanda+ Especial</Text>
+                <Text style={estilos.bannerSubtitulo}>Até 50% de desconto nos pratos selecionados</Text>
+              </View>
+              <Text style={estilos.bannerEmoji}>🍔</Text>
+            </TouchableOpacity>
+
+            {/* Card 2 */}
+            <TouchableOpacity style={[estilos.bannerCard, { backgroundColor: '#1A3FA1' }]} activeOpacity={0.9}>
+              <View style={estilos.bannerTexto}>
+                <Text style={estilos.bannerTag}>🚚 FRETE ZERO</Text>
+                <Text style={estilos.bannerTitulo}>Entrega Grátis</Text>
+                <Text style={estilos.bannerSubtitulo}>Hoje o frete é por nossa conta nas principais lojas</Text>
+              </View>
+              <Text style={estilos.bannerEmoji}>🍕</Text>
+            </TouchableOpacity>
+
+            {/* Card 3 */}
+            <TouchableOpacity style={[estilos.bannerCard, { backgroundColor: '#27AE60' }]} activeOpacity={0.9}>
+              <View style={estilos.bannerTexto}>
+                <Text style={estilos.bannerTag}>⚡ RÁPIDO</Text>
+                <Text style={estilos.bannerTitulo}>Entrega Flash</Text>
+                <Text style={estilos.bannerSubtitulo}>Seu pedido entregue quentinho em até 25 minutos</Text>
+              </View>
+              <Text style={estilos.bannerEmoji}>🥗</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+
         {/* Categorias */}
         <View style={estilos.secaoCategorias}>
           <Text style={estilos.secaoTitulo}>Categorias</Text>
@@ -103,8 +173,8 @@ function RestaurantesScreen() {
           <Text style={estilos.secaoTitulo}>Lojas Disponíveis</Text>
           {carregando ? (
             <ActivityIndicator color={theme.cores.primaria} size="large" style={{ marginTop: 40 }} />
-          ) : empresas.length > 0 ? (
-            empresas.map((emp) => (
+          ) : empresasFiltradas.length > 0 ? (
+            empresasFiltradas.map((emp) => (
               <CardRestaurante
                 key={emp.id}
                 empresa={emp}
@@ -113,7 +183,7 @@ function RestaurantesScreen() {
             ))
           ) : (
             <View style={estilos.vazio}>
-              <Text style={estilos.textoVazio}>Nenhum restaurante encontrado nesta categoria.</Text>
+              <Text style={estilos.textoVazio}>Nenhum restaurante encontrado.</Text>
             </View>
           )}
         </View>
@@ -128,13 +198,80 @@ const estilos = StyleSheet.create({
     backgroundColor: theme.cores.cinzaClaro,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: theme.espacamento.md,
     paddingTop: theme.espacamento.xl,
     paddingBottom: theme.espacamento.md,
     backgroundColor: theme.cores.primaria,
+    borderBottomLeftRadius: theme.borda.raio.lg,
+    borderBottomRightRadius: theme.borda.raio.lg,
+    ...theme.sombra.leve,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.espacamento.sm,
+  },
+  campoBusca: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+    borderRadius: theme.borda.raio.md,
+    paddingHorizontal: theme.espacamento.sm,
+    marginTop: 4,
+  },
+  inputBusca: {
+    flex: 1,
+    paddingVertical: 8,
+    fontSize: theme.fonte.tamanho.md,
+    color: theme.cores.branco,
+  },
+  carrosselContainer: {
+    marginTop: theme.espacamento.md,
+  },
+  carrosselScroll: {
+    paddingHorizontal: theme.espacamento.md,
+    gap: 16,
+  },
+  bannerCard: {
+    width: LARGURA_TELA - 32,
+    borderRadius: theme.borda.raio.lg,
+    padding: theme.espacamento.md,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    overflow: 'hidden',
+    ...theme.sombra.leve,
+  },
+  bannerTexto: {
+    flex: 1,
+    marginRight: theme.espacamento.sm,
+  },
+  bannerTag: {
+    fontSize: 10,
+    fontWeight: theme.fonte.peso.bold,
+    color: theme.cores.branco,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: theme.borda.raio.sm,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+  },
+  bannerTitulo: {
+    fontSize: theme.fonte.tamanho.lg,
+    fontWeight: theme.fonte.peso.bold,
+    color: theme.cores.branco,
+    marginBottom: 4,
+  },
+  bannerSubtitulo: {
+    fontSize: theme.fonte.tamanho.xs,
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+  bannerEmoji: {
+    fontSize: 54,
+    marginLeft: theme.espacamento.sm,
   },
   saudacao: {
     fontSize: theme.fonte.tamanho.sm,
@@ -153,7 +290,6 @@ const estilos = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  emojiPerfil: { fontSize: 22 },
   secaoCategorias: {
     paddingTop: theme.espacamento.lg,
   },

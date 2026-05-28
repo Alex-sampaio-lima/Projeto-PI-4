@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import theme from '../../styles/theme';
 import { formatarMoeda } from '../../utils/format';
 
@@ -28,23 +29,28 @@ function ItemCarrinho({ item, onAumentar, onDiminuir, onRemover }) {
         <Text style={estilos.nome} numberOfLines={2}>{item.nome}</Text>
         <Text style={estilos.subtotal}>{formatarMoeda(subtotal)}</Text>
         <Text style={estilos.precoUnitario}>{formatarMoeda(item.preco)} / un</Text>
+        {item.observacao ? (
+          <Text style={estilos.observacao} numberOfLines={2}>
+            💬 {item.observacao}
+          </Text>
+        ) : null}
       </View>
 
       {/* Controles de quantidade */}
       <View style={estilos.controles}>
         {/* Botão remover */}
-        <TouchableOpacity style={estilos.botaoRemover} onPress={onRemover}>
-          <Text style={estilos.textoRemover}>🗑</Text>
+        <TouchableOpacity style={estilos.botaoRemover} onPress={onRemover} activeOpacity={0.8}>
+          <Ionicons name="trash-outline" size={18} color={theme.cores.erro} />
         </TouchableOpacity>
 
         {/* Diminuir/Aumentar */}
         <View style={estilos.quantidade}>
-          <TouchableOpacity style={estilos.botaoQtd} onPress={onDiminuir}>
-            <Text style={estilos.textoQtd}>−</Text>
+          <TouchableOpacity style={estilos.botaoQtd} onPress={onDiminuir} activeOpacity={0.8}>
+            <Ionicons name="remove" size={16} color={theme.cores.branco} />
           </TouchableOpacity>
           <Text style={estilos.numeroQtd}>{item.quantidade}</Text>
-          <TouchableOpacity style={estilos.botaoQtd} onPress={onAumentar}>
-            <Text style={estilos.textoQtd}>+</Text>
+          <TouchableOpacity style={estilos.botaoQtd} onPress={onAumentar} activeOpacity={0.8}>
+            <Ionicons name="add" size={16} color={theme.cores.branco} />
           </TouchableOpacity>
         </View>
       </View>
@@ -95,9 +101,6 @@ const estilos = StyleSheet.create({
   botaoRemover: {
     padding: 4,
   },
-  textoRemover: {
-    fontSize: 16,
-  },
   quantidade: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -111,17 +114,23 @@ const estilos = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  textoQtd: {
-    color: theme.cores.branco,
-    fontSize: 16,
-    fontWeight: theme.fonte.peso.bold,
-  },
   numeroQtd: {
     fontSize: theme.fonte.tamanho.md,
     fontWeight: theme.fonte.peso.bold,
     color: theme.cores.textoEscuro,
     minWidth: 20,
     textAlign: 'center',
+  },
+  observacao: {
+    fontSize: theme.fonte.tamanho.xs,
+    fontStyle: 'italic',
+    color: theme.cores.cinzaTexto,
+    marginTop: 4,
+    backgroundColor: theme.cores.cinzaClaro,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: theme.borda.raio.sm,
+    alignSelf: 'flex-start',
   },
 });
 

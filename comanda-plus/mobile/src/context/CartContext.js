@@ -69,11 +69,11 @@ export function CartProvider({ children }) {
   }, [buscarCarrinho]);
 
   // Adiciona produto ao carrinho
-  const adicionarAoCarrinho = useCallback(async (produto, quantidade = 1) => {
+  const adicionarAoCarrinho = useCallback(async (produto, quantidade = 1, observacao = '') => {
     try {
       // Verifica se o carrinho já tem itens de outra empresa
       if (itensCarrinho.length > 0) {
-        const empresaAtualId = itensCarrinho[0].product?.company_id;
+        const empresaAtualId = itensCarrinho[0].product?.company_id || itensCarrinho[0].company_id;
         if (empresaAtualId && produto.company_id && empresaAtualId !== produto.company_id) {
           Alert.alert(
             'Limpar carrinho?',
@@ -85,7 +85,7 @@ export function CartProvider({ children }) {
                 onPress: async () => {
                   await limparCarrinho();
                   // Após limpar, tenta adicionar novamente
-                  setTimeout(() => adicionarAoCarrinho(produto, quantidade), 500);
+                  setTimeout(() => adicionarAoCarrinho(produto, quantidade, observacao), 500);
                 } 
               }
             ]
@@ -95,7 +95,7 @@ export function CartProvider({ children }) {
       }
 
       setAdicionandoIds((prev) => [...prev, produto.id]);
-      await carrinhoService.adicionar(produto.id, quantidade);
+      await carrinhoService.adicionar(produto.id, quantidade, observacao);
       await buscarCarrinho();
       Alert.alert('✅ Adicionado', `${produto.nome} foi adicionado ao seu pedido!`);
     } catch (error) {

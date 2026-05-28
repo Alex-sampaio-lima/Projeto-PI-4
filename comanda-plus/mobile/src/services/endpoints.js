@@ -50,8 +50,8 @@ export const carrinhoService = {
   listar: () => api.get('/cart'),
 
   // Adiciona produto ao carrinho
-  adicionar: (productId, quantidade = 1) =>
-    api.post('/cart', { product_id: productId, quantidade }),
+  adicionar: (productId, quantidade = 1, observacao = '') =>
+    api.post('/cart', { product_id: productId, quantidade, observacao }),
 
   // Atualiza quantidade de um item
   atualizarQuantidade: (itemId, quantidade) =>

@@ -7,6 +7,7 @@ import {
   ScrollView, ActivityIndicator, Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import CardProduto from '../../components/produto/CardProduto';
 import CategoriaItem from '../../components/produto/CategoriaItem';
 import { produtosService, categoriasService } from '../../services/endpoints';
@@ -83,7 +84,7 @@ function ProdutosScreen() {
 
         {/* Campo de busca */}
         <View style={estilos.campoBusca}>
-          <Text style={estilos.iconeBusca}>🔍</Text>
+          <Ionicons name="search-outline" size={18} color={theme.cores.cinzaTexto} style={{ marginRight: 6 }} />
           <TextInput
             style={estilos.inputBusca}
             placeholder="Buscar produto..."
@@ -166,7 +167,6 @@ const estilos = StyleSheet.create({
     borderRadius: theme.borda.raio.md,
     paddingHorizontal: theme.espacamento.sm,
   },
-  iconeBusca: { fontSize: 16, marginRight: 6 },
   inputBusca: {
     flex: 1,
     paddingVertical: 10,

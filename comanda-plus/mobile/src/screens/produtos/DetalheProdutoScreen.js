@@ -4,9 +4,10 @@
 import React, { useState } from 'react';
 import {
   View, Text, Image, ScrollView, StyleSheet,
-  TouchableOpacity, Alert,
+  TouchableOpacity, Alert, TextInput,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import Botao from '../../components/ui/Botao';
 import { useCart } from '../../hooks/useCart';
 import { formatarMoeda, formatarAvaliacao } from '../../utils/format';
@@ -20,6 +21,7 @@ function DetalheProdutoScreen() {
   // Produto recebido via params de navegação
   const { produto } = route.params;
   const [quantidade, setQuantidade] = useState(1);
+  const [observacoes, setObservacoes] = useState('');
   const [carregando, setCarregando] = useState(false);
 
   function aumentarQuantidade() {
@@ -33,7 +35,7 @@ function DetalheProdutoScreen() {
   async function handleAdicionarAoCarrinho() {
     setCarregando(true);
     try {
-      await adicionarAoCarrinho(produto, quantidade);
+      await adicionarAoCarrinho(produto, quantidade, observacoes);
       Alert.alert(
         '✅ Adicionado!',
         `${quantidade}x ${produto.nome} foi adicionado ao carrinho.`,
@@ -56,8 +58,8 @@ function DetalheProdutoScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Imagem do produto */}
         <View style={estilos.imagemContainer}>
-          <TouchableOpacity style={estilos.botaoVoltar} onPress={() => navigation.goBack()}>
-            <Text style={estilos.setaVoltar}>←</Text>
+          <TouchableOpacity style={estilos.botaoVoltar} onPress={() => navigation.goBack()} activeOpacity={0.8}>
+            <Ionicons name="arrow-back" size={24} color={theme.cores.branco} />
           </TouchableOpacity>
           <Image source={{ uri: produto.imagem }} style={estilos.imagem} />
         </View>
@@ -88,16 +90,37 @@ function DetalheProdutoScreen() {
           {/* Divisor */}
           <View style={estilos.divisor} />
 
+          {/* Observações */}
+          <View style={estilos.observacaoContainer}>
+            <View style={estilos.observacaoHeader}>
+              <Ionicons name="chatbubble-ellipses-outline" size={16} color={theme.cores.primaria} />
+              <Text style={estilos.observacaoTitulo}>Alguma observação?</Text>
+            </View>
+            <TextInput
+              style={estilos.observacaoInput}
+              placeholder="Ex: Sem cebola, molho à parte, carne bem passada..."
+              placeholderTextColor={theme.cores.cinzaTexto}
+              value={observacoes}
+              onChangeText={setObservacoes}
+              multiline
+              numberOfLines={2}
+              maxLength={140}
+            />
+          </View>
+
+          {/* Divisor */}
+          <View style={estilos.divisor} />
+
           {/* Controle de quantidade */}
           <View style={estilos.quantidadeRow}>
             <Text style={estilos.quantidadeTitulo}>Quantidade</Text>
             <View style={estilos.quantidadeControle}>
-              <TouchableOpacity style={estilos.botaoQtd} onPress={diminuirQuantidade}>
-                <Text style={estilos.textoQtd}>−</Text>
+              <TouchableOpacity style={estilos.botaoQtd} onPress={diminuirQuantidade} activeOpacity={0.8}>
+                <Ionicons name="remove" size={20} color={theme.cores.branco} />
               </TouchableOpacity>
               <Text style={estilos.numeroQtd}>{quantidade}</Text>
-              <TouchableOpacity style={estilos.botaoQtd} onPress={aumentarQuantidade}>
-                <Text style={estilos.textoQtd}>+</Text>
+              <TouchableOpacity style={estilos.botaoQtd} onPress={aumentarQuantidade} activeOpacity={0.8}>
+                <Ionicons name="add" size={20} color={theme.cores.branco} />
               </TouchableOpacity>
             </View>
           </View>
@@ -137,7 +160,6 @@ const estilos = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setaVoltar: { color: theme.cores.branco, fontSize: 20, fontWeight: 'bold' },
   conteudo: {
     padding: theme.espacamento.md,
     borderTopLeftRadius: theme.borda.raio.lg,
@@ -181,7 +203,6 @@ const estilos = StyleSheet.create({
     width: 36, height: 36, borderRadius: theme.borda.raio.full,
     backgroundColor: theme.cores.primaria, alignItems: 'center', justifyContent: 'center',
   },
-  textoQtd: { color: theme.cores.branco, fontSize: 20, fontWeight: 'bold' },
   numeroQtd: { fontSize: theme.fonte.tamanho.xl, fontWeight: theme.fonte.peso.bold, color: theme.cores.textoEscuro, minWidth: 28, textAlign: 'center' },
   footer: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -190,6 +211,32 @@ const estilos = StyleSheet.create({
   labelPreco: { fontSize: theme.fonte.tamanho.sm, color: theme.cores.cinzaTexto },
   preco: { fontSize: theme.fonte.tamanho.xl, fontWeight: theme.fonte.peso.bold, color: theme.cores.primaria },
   botaoAdicionar: { flex: 1, marginLeft: theme.espacamento.md },
+  observacaoContainer: {
+    marginVertical: theme.espacamento.xs,
+  },
+  observacaoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: theme.espacamento.xs,
+  },
+  observacaoTitulo: {
+    fontSize: theme.fonte.tamanho.sm,
+    fontWeight: theme.fonte.peso.semibold,
+    color: theme.cores.textoEscuro,
+  },
+  observacaoInput: {
+    backgroundColor: theme.cores.cinzaClaro,
+    borderWidth: 1,
+    borderColor: theme.cores.cinzaMedio,
+    borderRadius: theme.borda.raio.md,
+    paddingHorizontal: theme.espacamento.md,
+    paddingVertical: theme.espacamento.sm,
+    fontSize: theme.fonte.tamanho.sm,
+    color: theme.cores.textoEscuro,
+    minHeight: 60,
+    textAlignVertical: 'top',
+  },
 });
 
 export default DetalheProdutoScreen;

@@ -65,9 +65,14 @@ function PedidoFinalizadoScreen() {
               <View style={estilos.divisor} />
               <Text style={estilos.itensTitulo}>Itens do Pedido</Text>
               {pedido.itens.map((item) => (
-                <View key={item.id} style={estilos.itemRow}>
-                  <Text style={estilos.itemNome}>{item.quantidade}x {item.produto_nome}</Text>
-                  <Text style={estilos.itemPreco}>{formatarMoeda(item.preco_unitario * item.quantidade)}</Text>
+                <View key={item.id} style={estilos.itemContainer}>
+                  <View style={estilos.itemRow}>
+                    <Text style={estilos.itemNome}>{item.quantidade}x {item.produto_nome}</Text>
+                    <Text style={estilos.itemPreco}>{formatarMoeda(item.preco_unitario * item.quantidade)}</Text>
+                  </View>
+                  {item.observacao ? (
+                    <Text style={estilos.itemObservacao}>💬 {item.observacao}</Text>
+                  ) : null}
                 </View>
               ))}
             </>
@@ -126,9 +131,17 @@ const estilos = StyleSheet.create({
   totalValor: { fontSize: theme.fonte.tamanho.lg, fontWeight: theme.fonte.peso.bold, color: theme.cores.primaria },
   divisor: { height: 1, backgroundColor: theme.cores.cinzaMedio },
   itensTitulo: { fontSize: theme.fonte.tamanho.sm, fontWeight: theme.fonte.peso.bold, color: theme.cores.textoEscuro, marginTop: 8, marginBottom: 4 },
-  itemRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 },
+  itemContainer: { marginBottom: 6 },
+  itemRow: { flexDirection: 'row', justifyContent: 'space-between' },
   itemNome: { fontSize: theme.fonte.tamanho.xs, color: theme.cores.cinzaTexto, flex: 1 },
   itemPreco: { fontSize: theme.fonte.tamanho.xs, color: theme.cores.textoEscuro, fontWeight: theme.fonte.peso.medio },
+  itemObservacao: {
+    fontSize: theme.fonte.tamanho.xs - 1,
+    fontStyle: 'italic',
+    color: theme.cores.cinzaTexto,
+    marginTop: 1,
+    marginLeft: 18,
+  },
   prazoContainer: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: theme.cores.cinzaClaro, borderRadius: theme.borda.raio.md,

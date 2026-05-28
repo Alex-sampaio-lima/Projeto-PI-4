@@ -44,8 +44,8 @@ const orderModel = {
     // Insere os itens
     for (const item of itens) {
       await run(
-        'INSERT INTO order_items (order_id, product_id, quantidade, preco_unitario) VALUES (?, ?, ?, ?)',
-        [orderId, item.product_id, item.quantidade, item.preco_unitario]
+        'INSERT INTO order_items (order_id, product_id, quantidade, preco_unitario, observacao) VALUES (?, ?, ?, ?, ?)',
+        [orderId, item.product_id, item.quantidade, item.preco_unitario, item.observacao || null]
       );
     }
 
