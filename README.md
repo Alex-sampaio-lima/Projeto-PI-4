@@ -118,4 +118,3 @@ Projeto-PI-4/
 *   **Sthephany Viana da Silva**
 *   **Thalyta Cristina Santana Silva**
 
-Este projeto foi desenvolvido com foco em práticas de Qualidade de Software (Q.A) e Engenharia de Requisitos aplicada ao Food Service.
