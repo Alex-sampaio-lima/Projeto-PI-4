@@ -1,10 +1,11 @@
 // src/screens/home/RestaurantesScreen.js
 // Tela principal que lista os restaurantes (empresas) — Estilo iFood
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet,
-  TouchableOpacity, ActivityIndicator, FlatList, TextInput, Dimensions
+  TouchableOpacity, ActivityIndicator, FlatList, TextInput, Dimensions,
+  useWindowDimensions
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +26,39 @@ function RestaurantesScreen() {
   const [busca, setBusca] = useState('');
   const [carregando, setCarregando] = useState(true);
   const insets = useSafeAreaInsets();
+
+  const { width: larguraTela } = useWindowDimensions();
+  const isWeb = larguraTela > 768;
+  const larguraBanner = isWeb ? 580 : larguraTela - 32;
+
+  const totalBanners = 3;
+  const scrollRef = useRef(null);
+  const [indiceAtivo, setIndiceAtivo] = useState(0);
+
+  useEffect(() => {
+    if (totalBanners <= 1) return;
+
+    const timer = setInterval(() => {
+      const proximoIndice = (indiceAtivo + 1) % totalBanners;
+      const passo = larguraBanner + 16;
+      scrollRef.current?.scrollTo({
+        x: proximoIndice * passo,
+        animated: true,
+      });
+      setIndiceAtivo(proximoIndice);
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [indiceAtivo, larguraBanner]);
+
+  const handleScroll = (event) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const passo = larguraBanner + 16;
+    const indice = Math.round(offsetX / passo);
+    if (indice !== indiceAtivo && indice >= 0 && indice < totalBanners) {
+      setIndiceAtivo(indice);
+    }
+  };
 
   useEffect(() => {
     carregarDadosIniciais();
@@ -109,15 +143,20 @@ function RestaurantesScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Carrossel de Banners de Promoção */}
-        <View style={estilos.carrosselContainer}>
+        <View style={[estilos.carrosselContainer, isWeb && { alignSelf: 'center', width: larguraBanner }]}>
           <ScrollView 
+            ref={scrollRef}
             horizontal 
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={estilos.carrosselScroll}
+            onMomentumScrollEnd={handleScroll}
           >
             {/* Card 1 */}
-            <TouchableOpacity style={[estilos.bannerCard, { backgroundColor: '#F4A62A' }]} activeOpacity={0.9}>
+            <TouchableOpacity 
+              style={[estilos.bannerCard, { backgroundColor: '#F4A62A', width: larguraBanner }]} 
+              activeOpacity={0.9}
+            >
               <View style={estilos.bannerTexto}>
                 <Text style={estilos.bannerTag}>🔥 PROMOÇÃO</Text>
                 <Text style={estilos.bannerTitulo}>Comanda+ Especial</Text>
@@ -127,7 +166,10 @@ function RestaurantesScreen() {
             </TouchableOpacity>
 
             {/* Card 2 */}
-            <TouchableOpacity style={[estilos.bannerCard, { backgroundColor: '#1A3FA1' }]} activeOpacity={0.9}>
+            <TouchableOpacity 
+              style={[estilos.bannerCard, { backgroundColor: '#1A3FA1', width: larguraBanner }]} 
+              activeOpacity={0.9}
+            >
               <View style={estilos.bannerTexto}>
                 <Text style={estilos.bannerTag}>🚚 FRETE ZERO</Text>
                 <Text style={estilos.bannerTitulo}>Entrega Grátis</Text>
@@ -137,7 +179,10 @@ function RestaurantesScreen() {
             </TouchableOpacity>
 
             {/* Card 3 */}
-            <TouchableOpacity style={[estilos.bannerCard, { backgroundColor: '#27AE60' }]} activeOpacity={0.9}>
+            <TouchableOpacity 
+              style={[estilos.bannerCard, { backgroundColor: '#27AE60', width: larguraBanner }]} 
+              activeOpacity={0.9}
+            >
               <View style={estilos.bannerTexto}>
                 <Text style={estilos.bannerTag}>⚡ RÁPIDO</Text>
                 <Text style={estilos.bannerTitulo}>Entrega Flash</Text>
@@ -146,6 +191,19 @@ function RestaurantesScreen() {
               <Text style={estilos.bannerEmoji}>🥗</Text>
             </TouchableOpacity>
           </ScrollView>
+
+          {/* Indicadores de Página (Dots) */}
+          <View style={estilos.indicadoresContainer}>
+            {[...Array(totalBanners)].map((_, i) => (
+              <View 
+                key={i} 
+                style={[
+                  estilos.indicador, 
+                  indiceAtivo === i ? estilos.indicadorAtivo : estilos.indicadorInativo
+                ]} 
+              />
+            ))}
+          </View>
         </View>
 
         {/* Categorias */}
@@ -234,7 +292,6 @@ const estilos = StyleSheet.create({
     gap: 16,
   },
   bannerCard: {
-    width: LARGURA_TELA - 32,
     borderRadius: theme.borda.raio.lg,
     padding: theme.espacamento.md,
     flexDirection: 'row',
@@ -272,6 +329,25 @@ const estilos = StyleSheet.create({
   bannerEmoji: {
     fontSize: 54,
     marginLeft: theme.espacamento.sm,
+  },
+  indicadoresContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 6,
+  },
+  indicador: {
+    height: 6,
+    borderRadius: 3,
+  },
+  indicadorAtivo: {
+    width: 16,
+    backgroundColor: theme.cores.primaria,
+  },
+  indicadorInativo: {
+    width: 6,
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
   },
   saudacao: {
     fontSize: theme.fonte.tamanho.sm,
