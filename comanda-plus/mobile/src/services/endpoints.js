@@ -90,6 +90,15 @@ export const enderecosService = {
   remover: (id) => api.delete(`/addresses/${id}`),
 };
 
+// ===== Formas de Pagamento ===== //
+export const formasPagamentoService = {
+  listar: () => api.get('/payment-methods'),
+  buscarPorId: (id) => api.get(`/payment-methods/${id}`),
+  criar: (dados) => api.post('/payment-methods', dados),
+  atualizar: (id, dados) => api.put(`/payment-methods/${id}`, dados),
+  remover: (id) => api.delete(`/payment-methods/${id}`),
+};
+
 // ===== Autenticação ===== //
 export const authService = {
   // Cadastra novo usuário

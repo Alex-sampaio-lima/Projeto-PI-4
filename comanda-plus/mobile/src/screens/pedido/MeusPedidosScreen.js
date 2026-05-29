@@ -46,7 +46,13 @@ function MeusPedidosScreen() {
 
   useEffect(() => {
     carregarPedidos();
-  }, []);
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      carregarPedidos();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   async function carregarPedidos() {
     try {

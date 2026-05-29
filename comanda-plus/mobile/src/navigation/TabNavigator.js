@@ -4,8 +4,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import RestaurantesScreen from '../screens/home/RestaurantesScreen';
+import HomeScreen from '../screens/home/HomeScreen';
 import ProdutosScreen from '../screens/produtos/ProdutosScreen';
 import CarrinhoScreen from '../screens/carrinho/CarrinhoScreen';
 import ContaScreen from '../screens/conta/ContaScreen';
@@ -13,6 +15,31 @@ import { useCart } from '../hooks/useCart';
 import theme from '../styles/theme';
 
 const Tab = createBottomTabNavigator();
+const InicioStack = createStackNavigator();
+
+function InicioStackNavigator() {
+  return (
+    <InicioStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <InicioStack.Screen name="Restaurantes" component={RestaurantesScreen} />
+      <InicioStack.Screen 
+        name="CardapioLoja" 
+        component={HomeScreen} 
+        options={({ route }) => ({ 
+          headerShown: true, 
+          title: route.params?.empresa?.nome || 'Cardápio',
+          headerTintColor: theme.cores.primaria,
+          headerTitleStyle: {
+            fontWeight: theme.fonte.peso.bold,
+          }
+        })} 
+      />
+    </InicioStack.Navigator>
+  );
+}
 
 // Ícones de cada aba usando Ionicons
 const ICONES = {
@@ -53,7 +80,7 @@ function TabNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Inicio" component={RestaurantesScreen} options={{ tabBarLabel: 'Início' }} />
+      <Tab.Screen name="Inicio" component={InicioStackNavigator} options={{ tabBarLabel: 'Início' }} />
       <Tab.Screen name="Produtos" component={ProdutosScreen} options={{ tabBarLabel: 'Cardápio' }} />
       <Tab.Screen name="Carrinho" component={CarrinhoScreen} options={{ tabBarLabel: 'Carrinho' }} />
       <Tab.Screen name="Conta" component={ContaScreen} options={{ tabBarLabel: 'Conta' }} />

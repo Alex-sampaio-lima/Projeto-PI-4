@@ -55,11 +55,18 @@ const addressValidator = [
   body('cep').notEmpty().withMessage('O CEP é obrigatório.')
 ];
 
+// Validador para Formas de Pagamento - Criar (POST)
+const paymentMethodValidator = [
+  body('tipo').notEmpty().withMessage('O tipo é obrigatório.'),
+  body('bandeira').notEmpty().withMessage('A bandeira/instituição é obrigatória.')
+];
+
 module.exports = {
   productValidator,
   categoryValidator,
   cartAddValidator,
   cartUpdateValidator,
   orderStatusValidator,
-  addressValidator
+  addressValidator,
+  paymentMethodValidator
 };

@@ -9,7 +9,17 @@ const cartController = {
     try {
       const itens = await cartModel.getAll();
       const total = await cartModel.getTotal();
-      res.json({ sucesso: true, dados: { itens, total } });
+      
+      let frete = 0;
+      if (itens && itens.length > 0) {
+        const companyModel = require('../models/companyModel');
+        const empresa = await companyModel.getById(itens[0].company_id);
+        if (empresa) {
+          frete = empresa.frete || 0;
+        }
+      }
+
+      res.json({ sucesso: true, dados: { itens, total, frete } });
     } catch (error) {
       next(error);
     }

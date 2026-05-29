@@ -74,13 +74,19 @@ async function main() {
       }
     }
 
-    // 2. Garantir que as 5 empresas existem no banco
+    // 2. Garantir que as 11 empresas existem no banco
     const empresas = [
       ['Burger King', 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=200', 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800', '20-30 min', 5.90, 4.5, 'Hambúrguer'],
       ['Dominos Pizza', 'https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=200', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800', '35-45 min', 0.00, 4.7, 'Pizza'],
       ['Saúde no Copo', 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=200', 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800', '15-25 min', 7.50, 4.8, 'Saudável'],
       ['Bacio di Latte', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6A7p8P9z3Z2N_I5P5k0L-M_6xXQnF5r9_WA&s', 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=800', '20-35 min', 4.90, 4.9, 'Sobremesas'],
-      ['Adega 24h', 'https://previews.123rf.com/images/vectorv/vectorv1908/vectorv190833113/129215777-wine-bottle-icon-design-template-vector-isolated.jpg', 'https://images.unsplash.com/photo-1528823872057-9c018a7a72b5?w=800', '15-25 min', 0.00, 4.6, 'Bebidas']
+      ['Adega 24h', 'https://previews.123rf.com/images/vectorv/vectorv1908/vectorv190833113/129215777-wine-bottle-icon-design-template-vector-isolated.jpg', 'https://images.unsplash.com/photo-1528823872057-9c018a7a72b5?w=800', '15-25 min', 0.00, 4.6, 'Bebidas'],
+      ["McDonald's", 'https://images.unsplash.com/photo-1619881589316-56c7f9e6b587?w=200', 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800', '15-25 min', 4.90, 4.3, 'Hambúrguer'],
+      ['Subway', 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=200', 'https://images.unsplash.com/photo-1540713434306-53f2485e4951?w=800', '20-30 min', 5.00, 4.4, 'Saudável'],
+      ['Pizza Hut', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200', 'https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?w=800', '30-40 min', 6.90, 4.5, 'Pizza'],
+      ['Sushibar Premium', 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200', 'https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=800', '40-50 min', 8.90, 4.8, 'Saudável'],
+      ['Starbucks Café', 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=200', 'https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=800', '10-20 min', 3.90, 4.7, 'Bebidas'],
+      ['Amor aos Pedaços', 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=200', 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=800', '15-25 min', 5.90, 4.6, 'Sobremesas']
     ];
 
     console.log('🏬 Verificando empresas...');
@@ -90,13 +96,13 @@ async function main() {
       if (!company) {
         const r = await run('INSERT INTO companies (nome, logo, banner, tempo_entrega, frete, avaliacao, categoria) VALUES (?, ?, ?, ?, ?, ?, ?)', emp);
         empIds[emp[0]] = r.lastID;
-        console.log(`✅ Empresa criada: ${emp[0]} (ID: ${r.lastID})`);
+        console.log(`` + `✅ Empresa criada: ${emp[0]} (ID: ${r.lastID})`);
       } else {
         empIds[emp[0]] = company.id;
       }
     }
 
-    // 3. Garantir que os 10 produtos fundamentais existem
+    // 3. Garantir que os produtos fundamentais existem
     const produtos = [
       ['Combo Burguer Bacon', 'Hambúrguer artesanal com bacon crocante, queijo cheddar.', 29.90, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', 4.8, catIds['Hambúrguer'], empIds['Burger King']],
       ['Big Beef Flavor', 'Dois hambúrgueres de carne angus.', 34.90, 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400', 4.6, catIds['Hambúrguer'], empIds['Burger King']],
@@ -107,7 +113,25 @@ async function main() {
       ['Picolé de Pistache', 'Pistache italiano original.', 14.50, 'https://images.unsplash.com/photo-1488900128323-21503983a07e?w=400', 4.8, catIds['Sobremesas'], empIds['Bacio di Latte']],
       ['Coca-Cola 2L', 'Gelada e refrescante.', 12.00, 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400', 4.6, catIds['Bebidas'], empIds['Adega 24h']],
       ['Cerveja Heineken 330ml', 'Long neck gelada.', 8.90, 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400', 4.7, catIds['Bebidas'], empIds['Adega 24h']],
-      ['Vinho Tinto Chileno', 'Cabernet Sauvignon 750ml.', 55.00, 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400', 4.8, catIds['Bebidas'], empIds['Adega 24h']]
+      ['Vinho Tinto Chileno', 'Cabernet Sauvignon 750ml.', 55.00, 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400', 4.8, catIds['Bebidas'], empIds['Adega 24h']],
+
+      ['Big Mac Combo', 'O clássico dois hambúrgueres, alface, queijo, molho especial, cebola e picles.', 32.90, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', 4.5, catIds['Hambúrguer'], empIds["McDonald's"]],
+      ['Batata Frita Média', 'Batatas crocantes e douradas, salgadas na medida certa.', 11.90, 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400', 4.6, catIds['Hambúrguer'], empIds["McDonald's"]],
+
+      ['Sub Frango Teriyaki 15cm', 'Frango em tiras com molho teriyaki, queijo derretido e vegetais frescos.', 24.90, 'https://images.unsplash.com/photo-1540713434306-53f2485e4951?w=400', 4.4, catIds['Saudável'], empIds['Subway']],
+      ['Cookie de Chocolate', 'Cookie macio com gotas de chocolate premium derretendo.', 6.50, 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400', 4.8, catIds['Saudável'], empIds['Subway']],
+
+      ['Pizza Suprema Pan', 'Molho de tomate, pepperoni, cebola, pimentão, champignon e queijo.', 49.90, 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400', 4.6, catIds['Pizza'], empIds['Pizza Hut']],
+      ['Pão de Alho Supremo', 'Fatias de pão com manteiga de alho e cobertura generosa de queijo gratinado.', 15.90, 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=400', 4.5, catIds['Pizza'], empIds['Pizza Hut']],
+
+      ['Combo Temaki & Rolls', '1 Temaki de Salmão Completo com cebolinha e cream cheese + 8 unidades de Uramaki Philadelphia.', 48.00, 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400', 4.8, catIds['Saudável'], empIds['Sushibar Premium']],
+      ['Sunomono Especial', 'Salada refrescante de pepino agridoce com gergelim preto e branco e pedaços de kani.', 14.90, 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400', 4.6, catIds['Saudável'], empIds['Sushibar Premium']],
+
+      ['Frappuccino de Caramelo', 'Café batido com gelo e leite, coberto com chantilly e uma calda deliciosa de caramelo.', 19.90, 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400', 4.7, catIds['Bebidas'], empIds['Starbucks Café']],
+      ['Croissant de Manteiga', 'Croissant folhado clássico amanteigado, crocante por fora e macio por dentro.', 10.90, 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400', 4.6, catIds['Bebidas'], empIds['Starbucks Café']],
+
+      ['Fatia Bolo Brigadeiro', 'Bolo de chocolate molhadinho com recheio e cobertura cremosos de brigadeiro gourmet.', 16.90, 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400', 4.8, catIds['Sobremesas'], empIds['Amor aos Pedaços']],
+      ['Torta de Limão', 'Massa crocante sablé com creme de limão siciliano azedinho e merengue italiano tostado.', 14.90, 'https://images.unsplash.com/photo-1519869325930-281384150729?w=400', 4.7, catIds['Sobremesas'], empIds['Amor aos Pedaços']]
     ];
 
     console.log('🍕 Verificando produtos...');

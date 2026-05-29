@@ -14,6 +14,7 @@ export const CartContext = createContext({});
 export function CartProvider({ children }) {
   const [itensCarrinho, setItensCarrinho] = useState([]);
   const [totalCarrinho, setTotalCarrinho] = useState(0);
+  const [freteCarrinho, setFreteCarrinho] = useState(0);
   const [carregando, setCarregando] = useState(false);
   // Lista de IDs de produtos que estão sendo adicionados no momento
   const [adicionandoIds, setAdicionandoIds] = useState([]);
@@ -26,6 +27,7 @@ export function CartProvider({ children }) {
       const dados = resposta.data?.dados || resposta.data || {};
       setItensCarrinho(dados.itens || []);
       setTotalCarrinho(dados.total || 0);
+      setFreteCarrinho(dados.frete || 0);
     } catch (error) {
       console.error('Erro ao buscar carrinho:', error.message);
     } finally {
@@ -39,13 +41,16 @@ export function CartProvider({ children }) {
   }, [buscarCarrinho]);
 
   // Limpa o carrinho
-  const limparCarrinho = useCallback(async () => {
+  const limparCarrinho = useCallback(async (mostrarAlerta = true) => {
     try {
       setCarregando(true);
       await carrinhoService.limpar();
       setItensCarrinho([]);
       setTotalCarrinho(0);
-      Alert.alert('Tudo certo!', 'O carrinho foi esvaziado.');
+      setFreteCarrinho(0);
+      if (mostrarAlerta) {
+        Alert.alert('Tudo certo!', 'O carrinho foi esvaziado.');
+      }
     } catch (error) {
       console.error('Erro ao limpar carrinho:', error.message);
       Alert.alert('Erro', 'Não foi possível limpar o carrinho. Tente novamente.');
@@ -83,9 +88,28 @@ export function CartProvider({ children }) {
               { 
                 text: 'Limpar e Adicionar', 
                 onPress: async () => {
-                  await limparCarrinho();
-                  // Após limpar, tenta adicionar novamente
-                  setTimeout(() => adicionarAoCarrinho(produto, quantidade, observacao), 500);
+                  try {
+                    setCarregando(true);
+                    // 1. Limpa o carrinho no backend silenciosamente
+                    await carrinhoService.limpar();
+                    setItensCarrinho([]);
+                    setTotalCarrinho(0);
+                    setFreteCarrinho(0);
+
+                    // 2. Adiciona o novo item imediatamente
+                    setAdicionandoIds((prev) => [...prev, produto.id]);
+                    await carrinhoService.adicionar(produto.id, quantidade, observacao);
+
+                    // 3. Atualiza o estado local do carrinho
+                    await buscarCarrinho();
+                    Alert.alert('✅ Adicionado', `${produto.nome} foi adicionado ao seu pedido!`);
+                  } catch (error) {
+                    console.error('Erro ao limpar e adicionar:', error.message);
+                    Alert.alert('Erro', 'Não foi possível adicionar o item. Tente novamente.');
+                  } finally {
+                    setAdicionandoIds((prev) => prev.filter((id) => id !== produto.id));
+                    setCarregando(false);
+                  }
                 } 
               }
             ]
@@ -136,6 +160,7 @@ export function CartProvider({ children }) {
       value={{
         itensCarrinho,
         totalCarrinho,
+        freteCarrinho,
         carregando,
         adicionandoIds,
         quantidadeTotalItens,

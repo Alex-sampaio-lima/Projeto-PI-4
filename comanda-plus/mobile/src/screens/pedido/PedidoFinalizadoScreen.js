@@ -54,6 +54,24 @@ function PedidoFinalizadoScreen() {
           </View>
           <View style={estilos.divisor} />
 
+          {pedido.frete !== undefined && pedido.frete !== null ? (
+            <>
+              <View style={estilos.linhaDados}>
+                <Text style={estilos.labelDado}>Subtotal</Text>
+                <Text style={estilos.valorDado}>{formatarMoeda(pedido.total - pedido.frete)}</Text>
+              </View>
+              <View style={estilos.divisor} />
+
+              <View style={estilos.linhaDados}>
+                <Text style={estilos.labelDado}>Taxa de entrega</Text>
+                <Text style={estilos.valorDado}>
+                  {pedido.frete > 0 ? formatarMoeda(pedido.frete) : 'Grátis'}
+                </Text>
+              </View>
+              <View style={estilos.divisor} />
+            </>
+          ) : null}
+
           <View style={estilos.linhaDados}>
             <Text style={estilos.labelDado}>Total Pago</Text>
             <Text style={estilos.totalValor}>{formatarMoeda(pedido.total)}</Text>

@@ -9,7 +9,7 @@ const orderModel = {
     FROM orders o
     LEFT JOIN addresses a ON o.address_id = a.id
     LEFT JOIN companies c ON o.company_id = c.id
-    ORDER BY o.created_at DESC
+    ORDER BY o.id DESC
   `),
 
   async getById(id) {
@@ -33,11 +33,11 @@ const orderModel = {
     return pedido;
   },
 
-  async create({ total, address_id, company_id, observacao, itens }) {
+  async create({ total, frete, address_id, company_id, observacao, forma_pagamento, status, itens }) {
     // Cria o pedido
     const r = await run(
-      "INSERT INTO orders (total, address_id, company_id, observacao, status) VALUES (?, ?, ?, ?, 'pendente')",
-      [total, address_id || null, company_id || null, observacao || null]
+      "INSERT INTO orders (total, frete, address_id, company_id, observacao, forma_pagamento, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [total, frete || 0, address_id || null, company_id || null, observacao || null, forma_pagamento || null, status || 'pendente']
     );
     const orderId = r.lastID;
 
